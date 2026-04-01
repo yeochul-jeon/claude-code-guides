@@ -3,10 +3,15 @@
 | 항목 | 날짜 |
 |------|------|
 | 생성일 | 2026-03-11 |
-| 변경일 | 2026-03-11 |
+| 변경일 | 2026-04-01 |
 
 > 풀스택(Java/Spring + React/Next.js) + 인프라(Terraform/K8s) 개발자를 위한
 > Claude Code 구성 전략 로드맵. 어떤 설정을 어떤 순서로, 왜 적용하는지에 대한 가이드.
+
+### 관련 문서
+- [개인 설정 가이드](claude-code-개인설정-가이드.md) — 각 설정 항목 상세 설명
+- [CLAUDE.md 실전 작성법](claude-code-CLAUDE-md-실전-작성법.md) — CLAUDE.md 작성 패턴
+- [팀 IDE 통합 가이드](claude-code-팀-IDE-통합-가이드.md) — Phase 4~5 확장
 
 ---
 
@@ -565,6 +570,16 @@ project/
 | 개인 설정 가이드 | CLAUDE.md, hooks, skills, MCP 등 상세 | `claude-code-개인설정-가이드.md` |
 | 팀/IDE/통합 가이드 | 팀 설정, IDE, CI/CD, SDK, Agent Teams | `claude-code-팀-IDE-통합-가이드.md` |
 | CLAUDE.md 실전 작성법 | 글로벌/프로젝트별 예시, AGENTS.md, Osmani 원칙 | `claude-code-CLAUDE-md-실전-작성법.md` |
+
+---
+
+## 직접 확인해보기
+
+- [ ] Phase 1 완료: `~/.claude/CLAUDE.md` + `~/.claude/settings.json` 설정
+- [ ] Phase 2 완료: 프로젝트 1개에 `CLAUDE.md` + `.claude/settings.json` 작성
+- [ ] Phase 3 완료: Skill 또는 Hook 1개 이상 추가
+- [ ] `claude` 실행 후 CLAUDE.md 지침이 반영되는지 테스트 (예: 언어 설정 확인)
+- [ ] 불필요한 설정 없이 최소한으로 시작했는지 점검
 
 ---
 

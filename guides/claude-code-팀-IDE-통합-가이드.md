@@ -3,9 +3,14 @@
 | 항목 | 날짜 |
 |------|------|
 | 생성일 | 2026-03-11 |
-| 변경일 | 2026-03-11 |
+| 변경일 | 2026-04-01 |
 
 > 개인 설정을 넘어, **팀 공유 설정, IDE 통합, CI/CD 파이프라인, Agent Teams, Plugin 생태계, SDK 연동**까지 다루는 확장 가이드
+
+### 관련 문서
+- [개인 설정 가이드](claude-code-개인설정-가이드.md) — 개인 설정 기초 (이 문서의 선행 학습)
+- [Harness 추천 구성](claude-code-harness-추천구성.md) — Phase 4~5에서 팀 설정 도입 전략
+- [CLAUDE.md 실전 작성법](claude-code-CLAUDE-md-실전-작성법.md) — 팀 CLAUDE.md 작성 패턴
 
 ---
 
@@ -217,7 +222,8 @@ VS Code 확장이 가장 완성도 높은 IDE 통합을 제공한다.
 ### JetBrains (IntelliJ, WebStorm 등)
 
 **설치:**
-- JetBrains Marketplace → "Claude Code [Beta]" 플러그인 설치
+- JetBrains Marketplace → "Claude Code **[Beta]**" 플러그인 설치
+- > ⚠️ **Beta 기능**: 안정성이 보장되지 않으며, 향후 변경될 수 있습니다.
 - IDE 재시작
 
 **주요 기능:**
@@ -364,7 +370,7 @@ jobs:
 
 ## 5. Agent Teams (멀티 에이전트 협업)
 
-> 실험적 기능 (2026.02 출시). 여러 Claude 인스턴스가 팀으로 협업한다.
+> ⚠️ **실험적 기능** (2026.02 출시, `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` 필요). 프로덕션 환경에서는 충분한 테스트 후 사용을 권장합니다. 여러 Claude 인스턴스가 팀으로 협업한다.
 
 ### 활성화
 
@@ -771,6 +777,18 @@ OS 수준 격리로 파일시스템/네트워크 접근을 제한.
 - [Claude Code MCP](https://code.claude.com/docs/en/mcp)
 - [Claude Code Headless Mode](https://code.claude.com/docs/en/headless)
 - [Agent SDK Overview](https://platform.claude.com/docs/en/agent-sdk/overview)
+## 직접 확인해보기
+
+- [ ] `.claude/settings.json`을 팀 저장소에 커밋하고, 팀원이 동일 설정으로 동작하는지 확인
+- [ ] VS Code에서 `Cmd+Esc`로 Claude Code 패널 열기 확인
+- [ ] GitHub Actions 워크플로우 1개 설정 후 PR 코멘트 동작 테스트
+- [ ] `settings.json` 우선순위 이해: Enterprise > CLI > Local > Shared > User
+- [ ] 보안 체크리스트 항목 중 3개 이상 점검 완료
+
+---
+
+## Sources
+
 - [anthropics/claude-code-action (GitHub)](https://github.com/anthropics/claude-code-action)
 - [Claude Code JetBrains Integration](https://code.claude.com/docs/en/jetbrains)
 - [Piebald-AI/claude-code-lsps (GitHub)](https://github.com/Piebald-AI/claude-code-lsps)

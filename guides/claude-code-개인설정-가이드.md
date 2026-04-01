@@ -3,9 +3,14 @@
 | 항목 | 날짜 |
 |------|------|
 | 생성일 | 2026-03-11 |
-| 변경일 | 2026-03-11 |
+| 변경일 | 2026-04-01 |
 
 > AI 분야 저명한 개발자들의 GitHub, 블로그, 공식 문서를 기반으로 정리한 **개인용 Claude Code 최적 구성법**
+
+### 관련 문서
+- [Harness 추천 구성](claude-code-harness-추천구성.md) — 설정 적용 순서 전략
+- [CLAUDE.md 실전 작성법](claude-code-CLAUDE-md-실전-작성법.md) — CLAUDE.md 심화 패턴
+- [팀 IDE 통합 가이드](claude-code-팀-IDE-통합-가이드.md) — 개인 설정을 팀으로 확장
 
 ---
 
@@ -635,6 +640,17 @@ your-project/
     │   └── debugger.md
     └── hooks/                 # Hook 스크립트
 ```
+
+---
+
+## 직접 확인해보기
+
+- [ ] `claude --version`으로 설치 확인
+- [ ] `claude`로 REPL 진입 후 `/init`으로 CLAUDE.md 생성
+- [ ] `~/.claude/CLAUDE.md`에 글로벌 지침 작성 (언어, 코딩 스타일)
+- [ ] `settings.json`에서 `deny` 패턴 1개 이상 설정 (예: `Read(.env)`)
+- [ ] Hook 1개 설정 후 동작 확인 (예: PreToolUse에서 Bash 명령 로깅)
+- [ ] `/clear` → 새 프롬프트로 깨끗한 세션 시작 체험
 
 ---
 
