@@ -3,7 +3,7 @@
 | 항목 | 날짜 |
 |------|------|
 | 생성일 | 2026-03-11 |
-| 변경일 | 2026-04-02 |
+| 변경일 | 2026-04-03 |
 
 > 개인 설정을 넘어, **팀 공유 설정, IDE 통합, CI/CD 파이프라인, Agent Teams, Plugin 생태계, SDK 연동**까지 다루는 확장 가이드
 
@@ -365,6 +365,223 @@ jobs:
 - 특정 `@claude` 명령으로 불필요한 API 호출 방지
 - 워크플로우 수준 타임아웃 설정
 - GitHub concurrency 제어로 병렬 실행 제한
+
+### Jenkins / GitLab CI 연동
+
+GitHub Actions 외 CI/CD 플랫폼에서도 Claude Code를 활용할 수 있습니다.
+
+#### Jenkins Pipeline
+
+```groovy
+// Jenkinsfile
+pipeline {
+    agent any
+    environment {
+        ANTHROPIC_API_KEY = credentials('anthropic-api-key')
+    }
+    stages {
+        stage('Claude Code Review') {
+            when {
+                changeRequest()
+            }
+            steps {
+                sh '''
+                    npx @anthropic-ai/claude-code -p \
+                      "이 PR의 변경사항을 리뷰하세요. 보안, 성능, 코드 품질 관점에서 분석." \
+                      --allowedTools "Read,Grep,Glob" \
+                      --output-format json > review.json
+                '''
+                archiveArtifacts artifacts: 'review.json'
+            }
+        }
+        stage('Claude Test Generation') {
+            when {
+                changeset "src/**/*.java"
+            }
+            steps {
+                sh '''
+                    npx @anthropic-ai/claude-code -p \
+                      "변경된 파일의 단위 테스트를 생성하세요." \
+                      --allowedTools "Read,Grep,Glob,Write" \
+                      --max-turns 10
+                '''
+            }
+        }
+    }
+}
+```
+
+#### GitLab CI
+
+```yaml
+# .gitlab-ci.yml
+claude-review:
+  stage: review
+  image: node:22
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+  variables:
+    ANTHROPIC_API_KEY: $ANTHROPIC_API_KEY
+  script:
+    - npx @anthropic-ai/claude-code -p
+        "이 MR의 변경사항을 리뷰하세요."
+        --allowedTools "Read,Grep,Glob"
+        --output-format json > review.json
+  artifacts:
+    paths:
+      - review.json
+
+claude-migrate:
+  stage: build
+  image: node:22
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      changes:
+        - "db/migrations/**"
+  variables:
+    ANTHROPIC_API_KEY: $ANTHROPIC_API_KEY
+  script:
+    - npx @anthropic-ai/claude-code -p
+        "새로운 마이그레이션 파일을 검증하세요. 롤백 가능 여부와 데이터 손실 위험을 확인."
+        --allowedTools "Read,Grep,Glob"
+        --output-format json
+```
+
+#### 플랫폼 비교
+
+| 항목 | GitHub Actions | Jenkins | GitLab CI |
+|------|:---:|:---:|:---:|
+| 공식 Action 지원 | ✅ `claude-code-action@v1` | ❌ CLI 직접 호출 | ❌ CLI 직접 호출 |
+| PR/MR 코멘트 자동 작성 | ✅ Action 내장 | 수동 API 호출 | 수동 API 호출 |
+| 비밀 관리 | `secrets.*` | `credentials()` | CI/CD Variables |
+| 설정 난이도 | 낮음 | 중간 | 중간 |
+
+> Jenkins/GitLab에서는 `claude-code-action`이 없으므로 `npx @anthropic-ai/claude-code -p` (Headless 모드)로 직접 호출합니다. Headless 모드 제한사항은 [FAQ](claude-code-FAQ.md#q-headless-모드claude--p에서-제한사항이-있나요) 참조.
+
+### Branch Protection 패턴
+
+Claude가 생성한 코드가 직접 main 브랜치에 병합되지 않도록 보호합니다.
+
+#### GitHub Branch Protection Rules
+
+```json
+// Branch protection 권장 설정 (GitHub API 또는 Settings > Branches)
+{
+  "required_pull_request_reviews": {
+    "required_approving_review_count": 1,
+    "dismiss_stale_reviews": true
+  },
+  "required_status_checks": {
+    "strict": true,
+    "contexts": ["ci/test", "ci/lint"]
+  },
+  "enforce_admins": true,
+  "restrictions": null
+}
+```
+
+#### Claude 워크플로우와 Branch Protection 조합
+
+```
+                     ┌─────────────────┐
+                     │  Issue 생성      │
+                     │  (label: claude) │
+                     └────────┬────────┘
+                              │
+                     ┌────────▼────────┐
+                     │  Claude 자동     │
+                     │  브랜치 생성 + PR │
+                     └────────┬────────┘
+                              │
+              ┌───────────────┼───────────────┐
+              │               │               │
+     ┌────────▼──────┐ ┌─────▼──────┐ ┌──────▼───────┐
+     │ CI 테스트 통과  │ │ 린트 통과   │ │ 사람 리뷰 승인 │
+     └────────┬──────┘ └─────┬──────┘ └──────┬───────┘
+              │               │               │
+              └───────────────┼───────────────┘
+                              │
+                     ┌────────▼────────┐
+                     │   main 병합      │
+                     └─────────────────┘
+```
+
+**핵심**: Claude가 직접 main에 push하는 것을 **원천 차단**하고, 반드시 PR → CI 통과 → 사람 리뷰 → 병합 플로우를 거치도록 강제합니다.
+
+#### settings.json에서 force-push 방지
+
+```json
+{
+  "permissions": {
+    "deny": [
+      "Bash(git push --force*)",
+      "Bash(git push -f*)",
+      "Bash(git push origin main*)",
+      "Bash(git push origin master*)"
+    ]
+  }
+}
+```
+
+### Pre-commit Hook 통합
+
+Claude Code의 Hooks와 Git pre-commit을 연계하여 커밋 전 품질을 보장합니다.
+
+#### Git pre-commit hook
+
+```bash
+#!/bin/bash
+# .git/hooks/pre-commit (또는 .husky/pre-commit)
+
+# 1. 린트
+npm run lint --quiet 2>/dev/null || {
+  echo "❌ Lint 실패. 'npm run lint -- --fix'로 수정 후 재커밋하세요."
+  exit 1
+}
+
+# 2. 타입 체크
+npm run type-check 2>/dev/null || {
+  echo "❌ 타입 에러. 수정 후 재커밋하세요."
+  exit 1
+}
+
+# 3. 민감 정보 검출
+if git diff --cached --name-only | grep -qE '\.(env|pem|key)$'; then
+  echo "❌ 민감 파일이 포함되어 있습니다. .gitignore에 추가하세요."
+  exit 1
+fi
+```
+
+#### Claude Code PostToolUse Hook과 연계
+
+```json
+// .claude/settings.json
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if echo \"$TOOL_INPUT\" | jq -r '.command' | grep -q '^git commit'; then echo '✅ Pre-commit hook이 자동 실행됩니다.'; fi"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+> Claude가 `git commit`을 실행하면 Git의 pre-commit hook이 자동으로 트리거됩니다. Claude Code의 `--no-verify` 사용을 deny 규칙으로 차단하면 hook 우회를 방지할 수 있습니다.
+
+```json
+{
+  "permissions": {
+    "deny": ["Bash(git commit --no-verify*)"]
+  }
+}
+```
 
 ---
 
