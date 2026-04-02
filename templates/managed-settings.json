@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "_comment": "엔터프라이즈 관리자용 — OS별 배포 경로: macOS /Library/Application Support/ClaudeCode/, Linux /etc/claude-code/, Windows C:\\Program Files\\ClaudeCode\\",
+
+  "permissions": {
+    "deny": [
+      "Read(~/.ssh/**)",
+      "Read(~/.gnupg/**)",
+      "Read(~/.aws/**)",
+      "Read(~/.azure/**)",
+      "Read(~/.kube/**)",
+      "Read(~/.npmrc)",
+      "Read(~/.pypirc)",
+      "Read(~/.gem/credentials)",
+      "Read(~/.git-credentials)",
+      "Read(~/.config/gh/**)",
+      "Read(~/Library/Keychains/**)",
+      "Write(~/.bashrc)",
+      "Write(~/.zshrc)",
+      "Bash(rm -rf *)",
+      "Bash(sudo *)",
+      "Bash(mkfs *)",
+      "Bash(dd *)"
+    ]
+  },
+
+  "allowManagedHooksOnly": false,
+  "allowManagedPermissionRulesOnly": false,
+
+  "sandbox": {
+    "enabled": true,
+    "autoAllowBashIfSandboxed": true,
+    "filesystem": {
+      "denyRead": ["~/.aws/credentials", "~/.ssh/id_*"]
+    },
+    "network": {
+      "allowedDomains": [
+        "github.com",
+        "*.github.com",
+        "*.npmjs.org",
+        "registry.npmjs.org",
+        "pypi.org",
+        "*.anthropic.com"
+      ]
+    }
+  },
+
+  "strictKnownMarketplaces": [
+    "anthropics/skills",
+    "anthropics/claude-plugins-official"
+  ],
+
+  "forceLoginMethod": "console",
+
+  "companyAnnouncements": "Claude Code 사용 시 보안 정책을 준수하세요. 민감 데이터를 프롬프트에 포함하지 마세요."
+}

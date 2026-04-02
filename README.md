@@ -21,6 +21,15 @@ Claude Code(Anthropic CLI) 활용을 위한 한국어 실전 가이드 모음입
 | 4 | [팀 IDE 통합 가이드](guides/claude-code-팀-IDE-통합-가이드.md) | 팀 공유 설정, IDE 통합, CI/CD, Agent Teams, Plugin, SDK, 보안 거버넌스 |
 | - | [FAQ & 트러블슈팅](guides/claude-code-FAQ.md) | 자주 묻는 질문과 오류 해결 통합 가이드 |
 
+### 팀 공유 템플릿
+
+| 파일 | 설명 |
+|------|------|
+| [team-settings.json](templates/team-settings.json) | 팀 공유 settings.json (권한, Hooks, 알림) |
+| [managed-settings.json](templates/managed-settings.json) | 엔터프라이즈 관리자용 강제 설정 |
+| [protect-files.sh](templates/protect-files.sh) | 민감 파일 수정 차단 Hook 스크립트 |
+| [팀 온보딩 체크리스트](templates/team-onboarding-checklist.md) | 신규 팀원 30분 설정 완료 가이드 |
+
 ### 도구 연동 (CJ 내부)
 
 | 문서 | 설명 |
