@@ -3,7 +3,7 @@
 | 항목 | 날짜 |
 |------|------|
 | 생성일 | 2026-03-11 |
-| 변경일 | 2026-04-01 |
+| 변경일 | 2026-04-03 |
 
 > 풀스택(Java/Spring + React/Next.js) + 인프라(Terraform/K8s) 개발자를 위한
 > Claude Code 구성 전략 로드맵. 어떤 설정을 어떤 순서로, 왜 적용하는지에 대한 가이드.
@@ -284,6 +284,136 @@ monorepo/
 - DB 스키마 변경 시 backend + infra 양쪽 영향도 확인
 - 각 영역별 상세 규칙은 하위 CLAUDE.md 참조
 ```
+
+### 3.6 설정 계층 캐스케이드
+
+여러 프로젝트를 운영할 때 "어떤 설정이 최종 적용되는가"를 이해해야 합니다.
+
+```mermaid
+graph TD
+    subgraph "설정 우선순위 (높→낮)"
+        M["Managed Policy<br/>managed-settings.json + managed-CLAUDE.md<br/><i>MDM 배포, 사용자 변경 불가</i>"]
+        CLI["CLI Arguments<br/>--model, --allowedTools 등<br/><i>실행 시 1회성 지정</i>"]
+        L["Local (gitignored)<br/>.claude/settings.local.json<br/><i>개인 override, 커밋 제외</i>"]
+        P["Project (git commit)<br/>.claude/settings.json + CLAUDE.md<br/><i>팀 공유, 프로젝트별 규칙</i>"]
+        U["User (global)<br/>~/.claude/settings.json + ~/.claude/CLAUDE.md<br/><i>모든 프로젝트에 적용</i>"]
+    end
+
+    M --> CLI --> L --> P --> U
+
+    style M fill:#ff6b6b,color:#fff
+    style CLI fill:#ffa07a,color:#fff
+    style L fill:#ffd700,color:#333
+    style P fill:#98fb98,color:#333
+    style U fill:#87ceeb,color:#333
+```
+
+**핵심 규칙**:
+- `permissions.deny`는 어떤 레벨에서든 **항상 승리** (allow보다 우선)
+- CLAUDE.md는 모든 레벨이 **병합**되어 적용 (상위가 하위를 덮어쓰지 않음)
+- settings.json은 **높은 우선순위가 낮은 우선순위를 override**
+
+> 상세 설정 키별 우선순위는 [개인설정 가이드 §3](claude-code-개인설정-가이드.md) 참조
+
+### 3.7 Override 결정 매트릭스
+
+"이 설정은 어디에 넣어야 하나?" 판단 기준:
+
+| 설정 내용 | Global CLAUDE.md | Project CLAUDE.md | .claude/rules/ | settings.json | settings.local.json | Hooks |
+|----------|:---:|:---:|:---:|:---:|:---:|:---:|
+| 응답 언어·스타일 | ✅ | - | - | - | - | - |
+| 코드 컨벤션 | - | ✅ | ✅ | - | - | - |
+| 빌드·테스트 명령어 | - | ✅ | - | - | - | - |
+| 보안 deny 규칙 | - | - | - | ✅ | - | - |
+| 개인 취향 (model, effort) | - | - | - | - | ✅ | - |
+| 팀 표준 권한 | - | - | - | ✅ | - | - |
+| 파일 보호·자동 포맷 | - | - | - | - | - | ✅ |
+| 도메인 지식 (용어·규칙) | - | ✅ | ✅ | - | - | - |
+| 경로별 규칙 (API, 컴포넌트) | - | - | ✅ | - | - | - |
+
+> `.claude/rules/` 활용법은 [CLAUDE.md 실전 작성법 §6](claude-code-CLAUDE-md-실전-작성법.md) 참조
+
+### 3.8 멀티 프로젝트 조율 패턴
+
+#### Pattern 1: 독립 프로젝트 5개+ 관리
+
+```
+~/.claude/
+├── CLAUDE.md              # 공통: 언어, 스타일, 커밋 규칙
+├── settings.json          # 공통: 기본 allow/deny
+└── skills/                # 공통: commit-helper 등
+
+~/projects/
+├── order-api/             # Spring Boot
+│   ├── CLAUDE.md          # JPA 규칙, API 컨벤션
+│   └── .claude/settings.json  # Bash(./gradlew *) allow
+├── admin-web/             # Next.js
+│   ├── CLAUDE.md          # React 규칙, shadcn/ui
+│   └── .claude/settings.json  # Bash(pnpm *) allow
+├── infra/                 # Terraform
+│   ├── CLAUDE.md          # HCL 규칙, 보안 강화
+│   └── .claude/settings.json  # Bash(terraform *) deny
+├── docs/                  # 문서 프로젝트
+│   └── CLAUDE.md          # 한국어 작성 규칙
+└── data-pipeline/         # Python
+    ├── CLAUDE.md          # PEP 8, pytest
+    └── .claude/settings.json  # Bash(poetry *) allow
+```
+
+**원칙**: Global CLAUDE.md = "나는 어떤 개발자인가" (철학), Project CLAUDE.md = "이 프로젝트는 어떻게 작동하는가" (기술)
+
+#### Pattern 2: 모노레포 + 독립 프로젝트 혼합
+
+모노레포 내부 구조는 [§3.5 모노레포 전략](#35-모노레포-전략) 참조.
+
+모노레포와 독립 프로젝트를 동시에 운영할 때:
+
+```markdown
+# ~/.claude/CLAUDE.md (Global)
+## 공통 규칙
+- 커밋: 한국어 + Conventional Commits
+- 코드 리뷰: PR 단위, 500줄 이하 권장
+
+## 프로젝트 간 규칙
+- monorepo: API 변경 시 프론트엔드 타입 동기화 확인
+- data-pipeline → order-api: 스키마 변경 시 양쪽 확인
+```
+
+Global CLAUDE.md에 **프로젝트 간 의존성**을 명시하면, 어떤 프로젝트에서 작업하든 크로스 영향을 인지할 수 있습니다.
+
+#### Pattern 3: 3계층 패턴 (Global / Domain / Local)
+
+대규모 조직에서 활용하는 패턴 (Toss Payments 김용성 사례 참고):
+
+| 계층 | 역할 | Claude Code 매핑 |
+|------|------|-----------------|
+| **Global** | 조직 철학·보안 정책 | `managed-settings.json` + `~/.claude/CLAUDE.md` |
+| **Domain** | 팀/서비스별 기술 규칙 | `CLAUDE.md` + `.claude/settings.json` |
+| **Local** | 개인 선호 (model, effort) | `.claude/settings.local.json` |
+
+이 패턴의 장점: 신입 개발자가 프로젝트를 clone하면 **Domain 규칙이 자동 적용**되어, 별도 온보딩 없이 팀 표준을 따르게 됩니다.
+
+> 팀 온보딩 체크리스트는 [templates/team-onboarding-checklist.md](../templates/team-onboarding-checklist.md) 참조
+
+### 3.9 설정 충돌 디버깅
+
+#### "내 설정이 안 먹혀요" 체크리스트
+
+1. **파일명 확인**: `claude.md` ≠ `CLAUDE.md` (대소문자 구분)
+2. **위치 확인**: 작업 디렉토리 기준으로 `CLAUDE.md`, `.claude/` 위치가 올바른가?
+3. **우선순위 확인**: 상위 레벨(Managed, CLI)이 오버라이드하고 있지 않은가?
+4. **deny 규칙 확인**: `permissions.deny`는 어떤 allow보다 우선 — deny에 걸리면 해제 필요
+5. **로딩 확인**: 세션 시작 시 출력 또는 `/cost`로 어떤 파일이 로딩되었는지 확인
+
+#### 흔한 충돌 시나리오
+
+| 상황 | 결과 | 이유 |
+|------|------|------|
+| Global allow `Bash(rm *)` + Project deny `Bash(rm *)` | **deny 승리** | deny는 항상 allow보다 우선 |
+| Project CLAUDE.md "한국어 사용" + Managed CLAUDE.md "English only" | **Managed 승리** | Managed는 최상위 우선순위 |
+| `backend/CLAUDE.md` "tabs 사용" + 루트 `CLAUDE.md` "spaces 사용" | **둘 다 로딩** | CLAUDE.md는 병합됨, 마지막 로딩이 우선 |
+
+> 설정 우선순위 상세 테이블은 [개인설정 가이드 §3](claude-code-개인설정-가이드.md) 참조
 
 ---
 
