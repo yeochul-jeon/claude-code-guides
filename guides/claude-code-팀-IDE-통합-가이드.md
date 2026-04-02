@@ -3,7 +3,7 @@
 | 항목 | 날짜 |
 |------|------|
 | 생성일 | 2026-03-11 |
-| 변경일 | 2026-04-01 |
+| 변경일 | 2026-04-02 |
 
 > 개인 설정을 넘어, **팀 공유 설정, IDE 통합, CI/CD 파이프라인, Agent Teams, Plugin 생태계, SDK 연동**까지 다루는 확장 가이드
 
@@ -607,6 +607,57 @@ pip install claude-agent-sdk
 - Anthropic API 키 직접 사용
 - Amazon Bedrock (AWS 인프라)
 - Google Cloud Vertex AI
+
+#### TypeScript SDK 예시 — PR 자동 코드 리뷰
+
+```typescript
+import { ClaudeAgent } from "@anthropic-ai/claude-agent-sdk";
+
+const agent = new ClaudeAgent({
+  model: "claude-sonnet-4-6",
+  apiKey: process.env.ANTHROPIC_API_KEY,
+  allowedTools: ["Read", "Grep", "Glob", "Bash(gh *)"],
+  maxTurns: 20,
+});
+
+// PR diff를 분석하여 리뷰 코멘트 생성
+const result = await agent.run({
+  prompt: `
+    gh pr diff ${prNumber}의 변경사항을 리뷰하세요.
+    보안 취약점, 성능 이슈, 코드 스타일 위반을 중심으로 확인.
+    결과를 JSON 형식으로 반환: { "comments": [{ "file", "line", "severity", "message" }] }
+  `,
+  outputFormat: "json",
+});
+
+// 결과를 PR 코멘트로 등록
+for (const comment of result.comments) {
+  await gh.createReviewComment(prNumber, comment);
+}
+```
+
+#### Python SDK 예시 — 이슈 자동 트리아지
+
+```python
+from claude_agent_sdk import ClaudeAgent
+
+agent = ClaudeAgent(
+    model="claude-sonnet-4-6",
+    allowed_tools=["Read", "Grep", "Glob", "Bash(gh *)"],
+    max_turns=10,
+)
+
+# GitHub 이슈를 분석하여 라벨 추천
+result = agent.run(
+    prompt=f"gh issue view {issue_number}를 분석하고 "
+           f"적절한 라벨(bug/feature/docs/chore)과 담당자를 추천하세요.",
+    output_format="json",
+)
+
+# 라벨 자동 적용
+subprocess.run(["gh", "issue", "edit", str(issue_number),
+                "--add-label", result["label"]])
+```
 
 ### 활용 사례
 
