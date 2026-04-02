@@ -1,0 +1,58 @@
+# CLAUDE.md — Backend API Server
+
+## Project Overview
+<!-- 프로젝트 한 줄 설명으로 교체 -->
+Spring Boot 3.x + Java 21 기반 REST API 서버. QueryDSL + JPA, PostgreSQL.
+
+## Build & Test
+- Build: `./gradlew build`
+- Test: `./gradlew test`
+- Single test: `./gradlew test --tests "com.example.SomeTest"`
+- Lint: `./gradlew checkstyleMain`
+
+## Architecture
+- Controller → Service → Repository 레이어드 구조
+- Entity를 Controller에서 직접 반환 금지, 반드시 DTO 변환
+- DI는 생성자 주입(@RequiredArgsConstructor) 필수
+- 필드 주입(@Autowired) 금지
+
+## Domain Terms
+<!-- 프로젝트 도메인에 맞게 수정 -->
+- SKU (Stock Keeping Unit): 재고 관리 단위
+- PDP (Product Detail Page): 상품 상세 페이지
+
+## Business Rules
+<!-- 프로젝트 비즈니스 규칙 추가 -->
+- 재고 5개 이하 → "품절 임박" 표시
+- 50,000원 이상 구매 시 무료 배송
+
+## JPA Rules
+- Entity에 @Data 금지 → @Getter + @NoArgsConstructor(access = PROTECTED)
+- N+1 방지: Fetch Join, @EntityGraph, BatchSize 고려
+- 수정 시 save() 대신 Dirty Checking 활용
+
+## QueryDSL
+- 동적 쿼리는 QueryDSL 최우선
+- BooleanBuilder 대신 BooleanExpression 반환 메서드 추출
+- RepositoryCustom + RepositoryImpl 패턴
+
+## API Conventions
+- URL: kebab-case (`/api/v1/user-profiles`)
+- JSON: camelCase
+- Error: `{ "code": "...", "message": "..." }`
+- 목록 API는 페이지네이션 필수
+
+## Exception Handling
+- @RestControllerAdvice로 전역 처리
+- try-catch 남용 금지
+
+## Testing
+- JUnit 5 + AssertJ
+- Service: Mockito 단위 테스트
+- Repository: @DataJpaTest 슬라이스 테스트
+- Controller: @WebMvcTest
+
+## Gotchas
+<!-- 프로젝트 고유 함정 추가 -->
+- `legacy-auth` 모듈은 deprecated이지만 3곳에서 import. 제거 금지
+- prod 환경 DB 마이그레이션은 반드시 DBA 확인 후 실행

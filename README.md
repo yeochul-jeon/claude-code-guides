@@ -29,6 +29,10 @@ Claude Code(Anthropic CLI) 활용을 위한 한국어 실전 가이드 모음입
 | [managed-settings.json](templates/managed-settings.json) | 엔터프라이즈 관리자용 강제 설정 |
 | [protect-files.sh](templates/protect-files.sh) | 민감 파일 수정 차단 Hook 스크립트 |
 | [팀 온보딩 체크리스트](templates/team-onboarding-checklist.md) | 신규 팀원 30분 설정 완료 가이드 |
+| [CLAUDE.md.backend](templates/CLAUDE.md.backend) | 백엔드 프로젝트 CLAUDE.md (Java/Spring) |
+| [CLAUDE.md.frontend](templates/CLAUDE.md.frontend) | 프론트엔드 프로젝트 CLAUDE.md (React/Next.js) |
+| [CLAUDE.md.infra](templates/CLAUDE.md.infra) | 인프라/DevOps CLAUDE.md (Terraform/K8s) |
+| [CLAUDE.md.docs](templates/CLAUDE.md.docs) | 문서 프로젝트 CLAUDE.md |
 
 ### 도구 연동 (CJ 내부)
 

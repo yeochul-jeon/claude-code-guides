@@ -1,0 +1,60 @@
+# CLAUDE.md — Frontend Web App
+
+## Project Overview
+<!-- 프로젝트 한 줄 설명으로 교체 -->
+Next.js 15 (App Router) + TypeScript + Tailwind CSS + shadcn/ui
+
+## Build & Test
+- `pnpm dev` — 개발 서버 (Turbopack)
+- `pnpm build` — 프로덕션 빌드
+- `pnpm lint` — ESLint
+- `pnpm test` — Jest + React Testing Library
+- `pnpm generate:types` — GraphQL/API 타입 생성 (빌드 전 필수)
+
+## Directory Structure
+- `app/` — App Router 페이지/레이아웃
+- `components/` — UI 컴포넌트 (shadcn/ui 기반)
+- `hooks/` — 커스텀 React hooks
+- `lib/` — API 래퍼, 유틸리티
+- `styles/` — Tailwind 커스터마이징
+
+## Component Rules
+- shadcn/ui를 기본 UI 라이브러리로 사용
+- Tailwind 유틸리티 클래스로 스타일링
+- 컴포넌트당 단일 책임
+- 상속보다 합성 선호
+- 재사용 로직은 커스텀 hook으로 추출
+
+## TypeScript
+- strict mode 필수
+- `any` 금지 → `unknown` 또는 제네릭 사용
+- 반환 타입 명시
+- Props는 항상 구조 분해
+
+## Data Fetching (TanStack Query)
+- QueryClient는 `app/layout.tsx`에서 초기화
+- API 로직은 `lib/api/`에 정리, hooks로 호출
+- 쿼리 키: 도메인 접두사 `['user', id]`
+
+## Import Order
+React → Next → 서드파티 → 로컬 모듈
+
+## Testing
+- @testing-library/react 사용
+- MSW(Mock Service Worker)로 API 모킹
+- 컴포넌트 테스트는 컴포넌트와 같은 디렉토리에 배치
+
+## Security
+- API 라우트에서 서버사이드 입력 검증
+- DOMPurify로 XSS 방지
+- 환경변수는 `NEXT_PUBLIC_` 접두사로 공개 범위 구분
+
+## Performance
+- React.memo, useMemo, useCallback 적절히 사용
+- 이미지: `next/image` 사용 필수
+- 코드 스플리팅: dynamic import 활용
+
+## Gotchas
+<!-- 프로젝트 고유 함정 추가 -->
+- `.env.local`은 테스트 환경에서 무시됨 — 테스트용은 `.env.test`에
+- `pnpm build` 전에 `pnpm generate:types` 필수
