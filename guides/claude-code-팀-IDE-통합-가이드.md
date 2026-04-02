@@ -994,6 +994,119 @@ OS 수준 격리로 파일시스템/네트워크 접근을 제한.
 /status    # 모든 활성 설정 소스와 우선순위 표시
 ```
 
+### 보안 감사 시나리오
+
+팀에서 정기적으로 수행할 보안 감사 항목:
+
+#### 시나리오 1: 권한 설정 감사
+
+```bash
+# 모든 프로젝트의 settings.json에서 allow 규칙 검토
+claude -p "프로젝트 내 .claude/settings.json과 settings.local.json의 \
+  permissions.allow 목록을 분석하고, 과도하게 넓은 권한(예: Bash(*))이 \
+  있는지 보고하세요." --allowedTools "Read,Grep,Glob"
+```
+
+**점검 항목**:
+- `Bash(*)` 같은 와일드카드 허용이 없는가?
+- `deny`에 민감 파일 패턴(.env, .ssh, .aws)이 포함되어 있는가?
+- `settings.local.json`이 `.gitignore`에 등록되어 있는가?
+
+#### 시나리오 2: MCP 서버 보안 감사
+
+```bash
+# 등록된 MCP 서버 목록과 설정 검토
+claude mcp list
+```
+
+**점검 항목**:
+- 미사용 MCP 서버가 등록되어 있지 않은가?
+- http 타입 서버의 URL이 신뢰할 수 있는 도메인인가?
+- 팀에서 승인하지 않은 MCP 서버가 포함되어 있지 않은가?
+
+#### 시나리오 3: Secrets 노출 감사
+
+```bash
+# 커밋 히스토리에서 민감 정보 패턴 검색
+claude -p "최근 50개 커밋에서 API 키, 토큰, 비밀번호 패턴을 검색하세요. \
+  (예: AKIA, sk-, ghp_, Bearer, password=)" \
+  --allowedTools "Bash(git log *),Bash(git show *),Grep"
+```
+
+### 컴플라이언스 체크리스트
+
+규제 환경에서 Claude Code 사용 시 확인해야 할 항목:
+
+#### 데이터 보호 기본 원칙
+
+| 항목 | 설정 방법 | 비고 |
+|------|----------|------|
+| 코드가 외부 API로 전송됨을 인지 | 팀 온보딩에 명시 | Anthropic API 정책 확인 |
+| 민감 데이터 차단 | `deny` + Sandbox | PII, PHI, PCI 데이터 접근 방지 |
+| 감사 로그 | PostToolUse Hook | Bash 명령 이력 기록 |
+| 네트워크 격리 | `sandbox.network` | 허용된 도메인만 접근 |
+| 모델 선택 제한 | `managed-settings.json` | 승인된 모델만 사용 가능 |
+
+#### 산업별 추가 고려사항
+
+| 산업/규제 | 추가 요구사항 |
+|----------|-------------|
+| **금융 (전자금융감독규정)** | 소스코드 외부 전송 승인 절차, 접근 통제 기록 보관 |
+| **의료 (개인정보보호법)** | 환자 데이터 접근 원천 차단, 데이터 처리 동의 |
+| **공공 (클라우드 보안인증)** | 국내 리전 API 사용 확인, 암호화 통신 |
+| **일반 (ISO 27001)** | 접근 제어, 감사 추적, 변경 관리 문서화 |
+
+> **중요**: Claude Code는 프롬프트와 코드를 Anthropic API로 전송합니다. 규제 환경에서는 보안팀과 사전 협의 후 도입하세요.
+
+### 코드 리뷰 표준 프로세스
+
+Claude를 활용한 팀 코드 리뷰 워크플로우:
+
+#### 3단계 리뷰 프로세스
+
+```
+PR 생성 → Claude 자동 리뷰 → 사람 리뷰 → 병합
+         (1차: 패턴 검출)   (2차: 판단)
+```
+
+**1차 — Claude 자동 리뷰** (GitHub Actions):
+- OWASP Top 10 취약점 검출
+- 코드 컨벤션 위반 (CLAUDE.md 기준)
+- N+1 쿼리, 미사용 import, 에러 핸들링 누락
+- 테스트 커버리지 확인
+
+**2차 — 사람 리뷰**:
+- 비즈니스 로직 정합성
+- 아키텍처 적합성
+- Claude 리뷰 결과 중 false positive 판별
+- 최종 승인/반려
+
+#### Claude 코드 리뷰 프롬프트 템플릿
+
+```yaml
+# .github/workflows/claude-review.yml
+- uses: anthropics/claude-code-action@v1
+  with:
+    anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+    prompt: |
+      이 PR을 다음 관점에서 리뷰하세요:
+      1. 보안: SQL injection, XSS, CSRF, 인증/인가 결함
+      2. 성능: N+1 쿼리, 불필요한 연산, 메모리 누수
+      3. 품질: 에러 핸들링, 엣지 케이스, 테스트 누락
+      4. 컨벤션: CLAUDE.md 규칙 준수 여부
+      
+      각 항목별로 발견사항을 코드 위치와 함께 코멘트하세요.
+      발견 없으면 "✅ 이상 없음"으로 표시하세요.
+```
+
+#### 리뷰 품질 지표
+
+| 지표 | 측정 방법 | 목표 |
+|------|----------|------|
+| False Positive 비율 | 사람 리뷰어가 "무시" 처리한 코멘트 수 / 전체 | < 20% |
+| 발견율 | Claude가 찾은 실제 이슈 / 전체 병합 후 버그 | > 60% |
+| 리뷰 시간 단축 | Claude 도입 전후 PR 평균 리뷰 시간 비교 | 30%+ 단축 |
+
 ---
 
 ## 전체 아키텍처 요약
