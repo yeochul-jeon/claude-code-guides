@@ -137,20 +137,35 @@ Spring Boot 3.x + Java 21 기반 REST API 서버
 
 ---
 
-## 3. settings.json 권한 설정
+## 3. settings.json 설정
 
-### 파일 위치
+### 스코프 우선순위 (높→낮)
 
-| 파일 | 용도 |
-|------|------|
-| `~/.claude/settings.json` | 글로벌 사용자 설정 |
-| `.claude/settings.json` | 프로젝트 설정 (git 커밋 가능) |
-| `.claude/settings.local.json` | 로컬 오버라이드 (gitignore) |
+| 순위 | 위치 | 용도 | Git 커밋 |
+|:---:|------|------|:--------:|
+| 1 | Managed settings | 조직 전체 (IT/DevOps 배포) | X |
+| 2 | CLI arguments | 임시 세션 오버라이드 | X |
+| 3 | `.claude/settings.local.json` | 로컬 오버라이드 | X (gitignored) |
+| 4 | `.claude/settings.json` | 프로젝트 팀 공유 | O |
+| 5 | `~/.claude/settings.json` | 글로벌 개인 설정 | X |
+
+> 높은 순위의 설정이 낮은 순위를 override한다.
+
+### JSON Schema 지원
+
+IDE에서 자동완성과 검증을 받으려면:
+
+```json
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json"
+}
+```
 
 ### 권장 글로벌 설정 (`~/.claude/settings.json`)
 
 ```json
 {
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "permissions": {
     "allow": [
       "Read",
@@ -176,11 +191,11 @@ Spring Boot 3.x + Java 21 기반 REST API 서버
       "Bash(rm -rf *)"
     ]
   },
-  "thinking": "always"
+  "alwaysThinkingEnabled": true
 }
 ```
 
-> **Tip:** `"thinking": "always"` 설정은 복잡한 작업에서 눈에 띄게 더 나은 결과를 만든다. — 여러 개발자 공통 추천
+> **Tip:** `alwaysThinkingEnabled: true`는 복잡한 작업에서 눈에 띄게 더 나은 결과를 만든다. — 여러 개발자 공통 추천
 
 ### 권한 문법
 
@@ -191,6 +206,124 @@ Spring Boot 3.x + Java 21 기반 REST API 서버
 | `Bash(npm install)` | 특정 명령만 허용 |
 | `Read(./.env)` | .env 파일 읽기 (deny에 사용) |
 | `Write(src/*)` | src 폴더 내 쓰기만 허용 |
+
+### 주요 설정 키 레퍼런스
+
+#### 일반 설정
+
+| Key | 설명 | 예시 |
+|-----|------|------|
+| `model` | 기본 모델 오버라이드 | `"claude-sonnet-4-6"` |
+| `agent` | 메인 스레드를 named subagent로 실행 | `"code-reviewer"` |
+| `language` | 응답 언어 | `"korean"` |
+| `effortLevel` | effort 수준 | `"low"` / `"medium"` / `"high"` |
+| `outputStyle` | 출력 스타일 | `"Explanatory"` |
+| `autoMemoryEnabled` | Auto Memory 토글 | `true` / `false` |
+| `alwaysThinkingEnabled` | Extended thinking 기본 활성 | `true` |
+| `includeGitInstructions` | Git 워크플로 프롬프트 포함 | `false` |
+
+#### 환경변수
+
+프로젝트별 환경변수를 settings.json에 정의:
+
+```json
+{
+  "env": {
+    "CLAUDE_CODE_ENABLE_TELEMETRY": "1",
+    "OTEL_METRICS_EXPORTER": "otlp"
+  }
+}
+```
+
+#### Sandbox 설정
+
+파일시스템/네트워크 격리로 보안 강화:
+
+```json
+{
+  "sandbox": {
+    "enabled": true,
+    "autoAllowBashIfSandboxed": true,
+    "filesystem": {
+      "allowWrite": ["/tmp/build", "~/.kube"],
+      "denyRead": ["~/.aws/credentials"]
+    },
+    "network": {
+      "allowedDomains": ["github.com", "*.npmjs.org"],
+      "allowLocalBinding": true
+    }
+  }
+}
+```
+
+#### Worktree 설정
+
+병렬 작업 시 symlink/sparse checkout 최적화:
+
+```json
+{
+  "worktree": {
+    "symlinkDirectories": ["node_modules", ".cache"],
+    "sparsePaths": ["packages/my-app", "shared/utils"]
+  }
+}
+```
+
+### 프로젝트별 Override 패턴
+
+#### .claude/settings.json (팀 공유, git 커밋)
+
+```json
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm *)",
+      "Bash(docker compose *)"
+    ],
+    "deny": [
+      "Bash(rm -rf *)",
+      "Bash(git push --force *)"
+    ]
+  }
+}
+```
+
+#### .claude/settings.local.json (개인 오버라이드, gitignored)
+
+팀 설정 위에 개인 설정을 추가:
+
+```json
+{
+  "permissions": {
+    "allow": [
+      "Bash(python *)",
+      "WebFetch(domain:skills.sh)"
+    ]
+  }
+}
+```
+
+### Managed Settings (엔터프라이즈)
+
+IT/DevOps가 조직 전체에 강제 적용하는 설정:
+
+| OS | 위치 |
+|----|------|
+| macOS | `/Library/Application Support/ClaudeCode/managed-settings.json` |
+| Linux/WSL | `/etc/claude-code/managed-settings.json` |
+| Windows | `C:\Program Files\ClaudeCode\managed-settings.json` |
+
+주요 엔터프라이즈 키:
+
+| Key | 설명 |
+|-----|------|
+| `allowManagedHooksOnly` | 사용자/프로젝트 hooks 차단 |
+| `allowManagedPermissionRulesOnly` | 관리자 권한 규칙만 허용 |
+| `strictKnownMarketplaces` | 플러그인 마켓플레이스 허용 목록 |
+| `forceLoginOrgUUID` | 특정 조직 UUID 로그인 강제 |
+| `disableAutoMode` | Auto mode 비활성화 |
+
+> `managed-settings.d/` drop-in 디렉토리로 여러 정책 파일을 알파벳 순 병합할 수 있다.
 
 ---
 
