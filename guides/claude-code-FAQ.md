@@ -3,7 +3,7 @@
 | 항목 | 날짜 |
 |------|------|
 | 생성일 | 2026-04-01 |
-| 변경일 | 2026-04-01 |
+| 변경일 | 2026-04-02 |
 
 > 각 가이드에 분산된 트러블슈팅 내용을 통합 정리한 문서
 
@@ -186,6 +186,77 @@ curl -s -H "Authorization: Bearer $CONFLUENCE_API_TOKEN" \
 ```bash
 echo $CONFLUENCE_DOMAIN       # 값이 출력되는지 확인
 source ~/.zshrc               # 환경변수 재로드
+```
+
+### Q: MCP 서버가 도구 목록에 나타나지 않습니다
+
+**확인 순서**:
+1. `claude mcp list`로 등록된 서버 확인
+2. `.mcp.json` 또는 `~/.claude.json`에 서버 설정이 올바른지 확인
+3. stdio 타입: 해당 명령어(`npx`, `python` 등)가 PATH에 있는지 확인
+4. http 타입: URL이 접근 가능한지 `curl`로 테스트
+5. MCP 설정 변경 후에는 `claude --continue`로 세션 재시작
+
+```bash
+# 등록 확인
+claude mcp list
+
+# http 서버 연결 테스트
+curl -s https://api.githubcopilot.com/mcp/ | head -5
+```
+
+### Q: Skills가 `/` 명령 목록에 보이지 않습니다
+
+**확인 순서**:
+1. SKILL.md 파일 위치 확인:
+   - 개인: `~/.claude/skills/<name>/SKILL.md`
+   - 프로젝트: `.claude/skills/<name>/SKILL.md`
+2. YAML frontmatter가 올바른지 확인 (`---`로 시작/끝)
+3. `name` 필드가 소문자+하이픈인지 확인 (대문자, 공백 불가)
+4. `disable-model-invocation: true`인 경우 자동 호출 안됨 — `/skill-name`으로만 사용
+
+```yaml
+# 올바른 예시
+---
+name: my-skill
+description: Does something useful
+---
+```
+
+### Q: GitHub CLI(`gh`) 인증이 안 됩니다
+
+```bash
+# 인증 상태 확인
+gh auth status
+
+# 재인증 (브라우저 열림)
+gh auth login
+
+# 토큰으로 인증 (CI/CD 환경)
+echo $GITHUB_TOKEN | gh auth login --with-token
+```
+
+> `gh` CLI는 Claude Code에서 GitHub 작업(PR, 이슈 등)에 필수. `Bash(gh *)`를 settings.json에 allow 해야 사용 가능.
+
+### Q: Headless 모드(`claude -p`)에서 제한사항이 있나요?
+
+| 항목 | 대화형 모드 | Headless (`-p`) |
+|------|:---------:|:--------------:|
+| 사용자 확인 프롬프트 | O | X (자동 거부) |
+| 권한 요청 | O (팝업) | X (`--allowedTools`로 사전 지정) |
+| Plan Mode | O | X |
+| 스트리밍 출력 | O | `--output-format stream-json` |
+| 멀티턴 대화 | O | X (단일 프롬프트) |
+
+```bash
+# Headless에서 권한을 사전 허용하려면
+claude -p "코드 리뷰" --allowedTools "Read,Grep,Glob"
+
+# JSON 출력
+claude -p "API 목록" --output-format json
+
+# 파이프라인 통합
+cat error.log | claude -p "이 에러 분석해줘" --output-format json
 ```
 
 ---
