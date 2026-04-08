@@ -19,6 +19,7 @@ Claude Code(Anthropic CLI) 활용을 위한 한국어 실전 가이드 모음입
 | 2 | [Harness 추천 구성](guides/claude-code-harness-추천구성.md) | 5단계 구성 전략 로드맵 — 어떤 설정을 어떤 순서로, 왜 적용하는지 |
 | 3 | [CLAUDE.md 실전 작성법](guides/claude-code-CLAUDE-md-실전-작성법.md) | 글로벌/프로젝트별 CLAUDE.md 패턴, AGENTS.md 표준, 백엔드/프론트엔드/인프라 템플릿 |
 | 4 | [팀 IDE 통합 가이드](guides/claude-code-팀-IDE-통합-가이드.md) | 팀 공유 설정, IDE 통합, CI/CD, Agent Teams, Plugin, SDK, 보안 거버넌스 |
+| 5 | [Codex 공식 플러그인 완전 가이드](guides/claude-code-codex-플러그인-완전-가이드.md) | OpenAI Codex 플러그인 설치, 코드 리뷰, 작업 위임 — 초보자 완전 가이드 |
 | - | [FAQ & 트러블슈팅](guides/claude-code-FAQ.md) | 자주 묻는 질문과 오류 해결 통합 가이드 |
 
 ### 팀 공유 템플릿

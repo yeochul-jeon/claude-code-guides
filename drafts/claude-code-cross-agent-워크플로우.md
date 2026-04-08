@@ -272,3 +272,4 @@ claude -p "비평을 반영해서 개선해줘: $(cat critique.md)" > prd-v2.md
 - [Toby님의 AI 개발 루틴 — 초보자 가이드](https://www.notion.so/325841d618e181468060c17e7d3a746c)
 - [Claude Code 하네스 추천구성](claude-code-harness-추천구성.md) — §3.8 멀티 프로젝트 패턴
 - [Claude Code 초보자 튜토리얼](claude-code-초보자-튜토리얼.md) — Skills, Hooks 기초
+- [Codex 공식 플러그인 완전 가이드](../guides/claude-code-codex-플러그인-완전-가이드.md) — 수동 CLI 대신 4줄 설치로 사용하는 공식 플러그인
