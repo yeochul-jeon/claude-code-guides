@@ -3,15 +3,17 @@
 | 항목 | 날짜 |
 |------|------|
 | 생성일 | 2026-03-11 |
-| 변경일 | 2026-04-03 |
+| 변경일 | 2026-04-13 |
 
 > 풀스택(Java/Spring + React/Next.js) + 인프라(Terraform/K8s) 개발자를 위한
 > Claude Code 구성 전략 로드맵. 어떤 설정을 어떤 순서로, 왜 적용하는지에 대한 가이드.
 
 ### 관련 문서
+- [하네스 엔지니어링 방법론](claude-code-하네스-엔지니어링-방법론.md) — 이 5단계의 이론적 기반 (4기둥, 결정론적/확률적 분리)
 - [개인 설정 가이드](claude-code-개인설정-가이드.md) — 각 설정 항목 상세 설명
 - [CLAUDE.md 실전 작성법](claude-code-CLAUDE-md-실전-작성법.md) — CLAUDE.md 작성 패턴
 - [팀 IDE 통합 가이드](claude-code-팀-IDE-통합-가이드.md) — Phase 4~5 확장
+- [.claude/ 통제센터 해부도](claude-code-통제센터-해부도.md) — 디렉토리 구조 전체 설계
 
 ---
 
@@ -39,6 +41,8 @@ Addy Osmani의 원칙을 따른다:
 - `/init`으로 자동 생성된 내용은 대부분 중복. 에이전트가 스스로 발견할 수 없는 것만 설정
 - CLAUDE.md는 **200줄 이하**, 글로벌은 **50줄 이하**
 - 반복 실수가 발생할 때마다 규칙을 추가하고, 불필요하면 제거하는 **진단 도구**로 운영
+
+이 5단계 로드맵은 [하네스 엔지니어링 방법론](claude-code-하네스-엔지니어링-방법론.md)의 **4기둥(Runtime Constraints → System Enforcement → Auto-Correction → Evolutionary Cleaning)**을 실전에 구현하는 순서다. Phase 1-2는 기둥 1(제약)을, Phase 3은 기둥 2-3(강제+자동수정)을, Phase 4-5는 기둥 4(진화)를 다룬다.
 
 ### 5단계 로드맵
 
@@ -628,8 +632,19 @@ Phase 5 → 안정화 → CI/CD 자동화
 | CLAUDE.md 500줄 | 규칙 무시됨 | 200줄 이하 + Skills 분리 |
 | `/init`으로 생성 후 방치 | 중복 정보, 비용 증가 | 수동 작성, 정기 정리 |
 | 모든 것을 Hook으로 | 워크플로우 느려짐 | 진짜 필수인 것만 Hook |
-| MCP 서버 10개+ | 도구 선택 혼란 | 1~2개부터 시작 |
+| MCP 서버 5개+ 활성화 | 컨텍스트 41% 소진 (대화 시작 전!) | 3개 이하 유지, 나머지는 Skills/CLI |
+| MCP 서버 10개+ | 도구 선택 혼란, 성능 저하 | 1~2개부터 시작 |
 | 매번 thinking 모드 | 단순 작업에 불필요한 비용 | 기본 on, 단순 작업은 `/fast` |
+| 기획→코딩→리뷰→문서화 한 세션 | Compaction으로 초기 결정 소실 | 1 session = 1 task 원칙 적용 |
+| 하네스 없이 "그냥 쓰기" | AI Slop, Doom Loop, Shadow Agent | 최소한 deny 규칙부터 시작 |
+
+> **4가지 실패 패턴**: 하네스 없이 AI를 쓰면 AI Slop(출력 오염), Doom Loop(무한 반복 수정),
+> DB Mutation(데이터 파괴), Shadow Agent(범위 초과 수정)가 반복 발생한다.
+> ([하네스 심화 §1](claude-code-하네스-심화-아키텍처.md#1-하네스-없을-때의-4가지-실패-패턴) 참조)
+>
+> **에스컬레이션 패턴**: 같은 실수가 반복된다면 프롬프트를 다듬지 말고 시스템을 바꿔라.
+> 1회 반복 → 대화로 수정 / 2회 반복 → CLAUDE.md 규칙 추가 / 3회 반복 → Hook으로 강제 차단
+> ([하네스 엔지니어링 방법론 §5](claude-code-하네스-엔지니어링-방법론.md#5-에스컬레이션-패턴) 참조)
 
 ---
 
@@ -693,13 +708,28 @@ project/
 
 ---
 
+## 참조 구현
+
+이 5단계 전략을 팀 단위로 즉시 배포할 수 있는 실전 구현이 있다:
+
+- **claude-harness** (`/Users/cjenm/poc/claude-harness`): base/profiles/skills 구조로 `./install.sh --profile <type>` 원커맨드 설치
+  - 5개 스택 프로필 (backend-java, backend-kotlin, frontend, infra 등)
+  - 7개 Skills (commit-helper, work-log, k8s-validator 등)
+  - 3개 서브에이전트 (planner, architect, code-reviewer)
+  - 자세한 내용: [.claude/ 통제센터 해부도 §8](claude-code-통제센터-해부도.md#8-참조-구현-claude-harness)
+
+---
+
 ## 관련 문서
 
 | 문서 | 내용 | 파일 |
 |------|------|------|
+| 하네스 엔지니어링 방법론 | 4기둥, 결정론/확률론, 에스컬레이션 패턴 | `claude-code-하네스-엔지니어링-방법론.md` |
+| 하네스 심화: 실패 패턴·참조 아키텍처·거버넌스 | 4가지 실패 패턴, 5요소, Stripe 6계층, SOLID, 거버넌스 성숙도 | `claude-code-하네스-심화-아키텍처.md` |
 | 개인 설정 가이드 | CLAUDE.md, hooks, skills, MCP 등 상세 | `claude-code-개인설정-가이드.md` |
 | 팀/IDE/통합 가이드 | 팀 설정, IDE, CI/CD, SDK, Agent Teams | `claude-code-팀-IDE-통합-가이드.md` |
 | CLAUDE.md 실전 작성법 | 글로벌/프로젝트별 예시, AGENTS.md, Osmani 원칙 | `claude-code-CLAUDE-md-실전-작성법.md` |
+| .claude/ 통제센터 해부도 | 디렉토리 구조, 컨텍스트 깔때기, Commands vs Skills vs Agents | `claude-code-통제센터-해부도.md` |
 
 ---
 

@@ -3,7 +3,7 @@
 | 항목 | 내용 |
 |------|------|
 | 생성일 | 2026-04-03 |
-| 변경일 | 2026-04-03 |
+| 변경일 | 2026-04-13 |
 | 목적 | 워크플로우 설계 고민 — Claude Code와 Codex 간 연계 패턴 정리 |
 | 참조 | [Toby님의 AI 개발 루틴](https://www.notion.so/325841d618e181468060c17e7d3a746c) |
 
@@ -267,9 +267,58 @@ claude -p "비평을 반영해서 개선해줘: $(cat critique.md)" > prd-v2.md
 
 ---
 
+---
+
+## 7. Claude Code vs Codex 역할 분담
+
+크로스 에이전트를 설계하기 전에 두 도구의 강점을 이해해야 한다.
+
+| 항목 | Claude Code | OpenAI Codex |
+|------|------------|--------------|
+| **실행 방식** | 로컬 우선, 스트리밍, 인터랙티브 | 클라우드+로컬, 계획 기반, 비동기 PR |
+| **강점** | 탐색, 대화, 디버깅, 즉각 피드백 | 배치 처리, 독립 검증, 샌드박스 실행 |
+| **하네스 확장** | CLAUDE.md, Skills, Hooks, Subagents | AGENTS.md, Sandbox, Approval |
+| **적합한 작업** | 요구사항 분석, 코드 작성, 아키텍처 설계 | 코드 리뷰, 보안 감사, 장기 배치 작업 |
+
+### 교차 검증 루프 (Cross-Verification Pattern)
+
+```mermaid
+sequenceDiagram
+    participant D as 개발자
+    participant CC as Claude Code
+    participant CX as Codex
+
+    D->>CC: 1. 요구사항 분석 + 계획
+    CC->>CC: 2. 코드 작성 (로컬)
+    CC->>CX: 3. PR + 코드 검토 요청
+    CX->>CX: 4. 샌드박스에서 검증 + 수정
+    CX->>CC: 5. 검토 결과 반환
+    CC->>D: 6. 최종 검토 (Vibe Review)
+```
+
+**핵심 효과**: 같은 Claude 모델이 자신의 코드를 리뷰하면 블라인드 스팟이 생긴다.
+Claude Code가 작성 → Codex가 독립적으로 검증하면 교차 검증이 가능하다.
+
+### 실전 패턴: PR 자동 교차 검증
+
+```bash
+# 1. Claude Code로 기능 구현
+claude -p "결제 API 구현해줘" --output-format text
+
+# 2. 구현 후 PR 생성
+gh pr create --title "feat: 결제 API 구현" --body "..."
+
+# 3. Codex로 독립 검토 (Codex 플러그인 활용)
+# .claude/commands/cross-review.md에 등록된 명령
+/codex-review  # Codex가 샌드박스에서 PR 코드를 검증하고 리뷰 코멘트 작성
+```
+
+---
+
 ## 참고 자료
 
 - [Toby님의 AI 개발 루틴 — 초보자 가이드](https://www.notion.so/325841d618e181468060c17e7d3a746c)
-- [Claude Code 하네스 추천구성](claude-code-harness-추천구성.md) — §3.8 멀티 프로젝트 패턴
-- [Claude Code 초보자 튜토리얼](claude-code-초보자-튜토리얼.md) — Skills, Hooks 기초
+- [하네스 엔지니어링 방법론](../guides/claude-code-하네스-엔지니어링-방법론.md) — 3 성능 축, 독립 평가자 원칙
+- [Claude Code 하네스 추천구성](../guides/claude-code-harness-추천구성.md) — §3.8 멀티 프로젝트 패턴
+- [Claude Code 초보자 튜토리얼](../guides/claude-code-초보자-튜토리얼.md) — Skills, Hooks 기초
 - [Codex 공식 플러그인 완전 가이드](../guides/claude-code-codex-플러그인-완전-가이드.md) — 수동 CLI 대신 4줄 설치로 사용하는 공식 플러그인
