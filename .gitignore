@@ -2,3 +2,8 @@ vpn-*.md
 .claude/settings.local.json
 .env
 .env.*
+
+# sources/ — 민감/임시 자료 제외
+sources/**/*-internal.pdf
+sources/**/*-confidential.pdf
+sources/**/_drafts/
