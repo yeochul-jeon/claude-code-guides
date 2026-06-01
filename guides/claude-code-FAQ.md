@@ -3,7 +3,7 @@
 | 항목 | 날짜 |
 |------|------|
 | 생성일 | 2026-04-01 |
-| 변경일 | 2026-04-02 |
+| 변경일 | 2026-06-01 |
 
 > 각 가이드에 분산된 트러블슈팅 내용을 통합 정리한 문서
 
@@ -21,6 +21,7 @@
 4. [성능 및 컨텍스트](#4-성능-및-컨텍스트)
 5. [도구 연동](#5-도구-연동)
 6. [플랫폼별 참고사항](#6-플랫폼별-참고사항)
+7. [하네스 없이 쓸 때 생기는 증상](#7-하네스-없이-쓸-때-생기는-증상)
 
 ---
 
@@ -277,3 +278,72 @@ cat error.log | claude -p "이 에러 분석해줘" --output-format json
 
 - Homebrew가 설치되어 있지 않으면: `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
 - Apple Silicon(M1+)에서는 네이티브 바이너리 설치를 권장합니다
+
+---
+
+## 7. 하네스 없이 쓸 때 생기는 증상
+
+Claude Code를 설치 후 CLAUDE.md/settings.json/Hooks 없이 그대로 쓸 때 반복되는 문제들입니다.  
+증상이 보이면 → 대응하는 하네스 구성으로 해결할 수 있습니다.
+
+| 증상 | 패턴 이름 | 원인 | 하네스 해결책 |
+|------|----------|------|--------------|
+| 같은 규칙을 매 세션마다 다시 설명해야 한다 | — | Claude는 대화 간 기억이 없음 | `CLAUDE.md`에 프로젝트 규칙 영속화 |
+| Claude가 `rm`, `DROP TABLE` 등 위험한 명령을 바로 실행한다 | Shadow Agent | 사전 권한 경계 없음 | `settings.json` `deny` 목록 + PreToolUse Hook |
+| 오류를 고쳐달라고 하면 같은 오류를 반복 생성한다 (3회 이상) | Doom Loop | 검증 단계 없이 수정→재수정 루프 | PostToolUse Hook에서 테스트 자동 실행, 3회 초과 시 중단 규칙 |
+| 코드가 그럴듯해 보이지만 실제 실행하면 깨진다 | AI Slop | 생성 후 검증 없음 | CLAUDE.md에 "변경 후 반드시 `npm test` 실행" 명시 |
+| Claude가 데이터베이스를 직접 수정했다 | DB Mutation | DB 접근 도구에 제한 없음 | `settings.json` deny: `Bash(psql *)`, `Bash(mysql *)` |
+| MCP 서버 5개를 켜니 응답이 느려지고 컨텍스트가 부족하다 | — | 도구 스키마가 컨텍스트 ~41% 선점 | 필요한 MCP만 프로젝트별 활성화, 나머지 비활성화 |
+| CLAUDE.md에 써뒀는데 Claude가 따르지 않는 경우가 있다 | — | CLAUDE.md는 확률적 (~80%) 준수 | 핵심 규칙은 Hook(결정론적, 100%)으로 강제 |
+| 팀원마다 Claude 동작이 달라서 리뷰가 어렵다 | — | 개인 설정만 있고 팀 공유 설정 없음 | `.claude/settings.json`을 git 커밋하여 팀 공유 |
+
+### 증상별 빠른 처방
+
+**"매 세션 같은 말 반복"** → CLAUDE.md 즉시 작성
+```bash
+cat > CLAUDE.md << 'EOF'
+# 프로젝트 규칙
+- 테스트 프레임워크: Jest
+- 커밋 전 반드시 `npm test` 실행
+- DB 직접 수정 금지 — 마이그레이션 파일로만
+EOF
+```
+
+**"위험한 명령 자동 실행"** → deny 목록 추가
+```json
+{
+  "permissions": {
+    "deny": ["Bash(rm -rf *)", "Bash(DROP *)", "Bash(psql * -c *)"]
+  }
+}
+```
+
+**"Doom Loop (같은 오류 반복)"** → 에스컬레이션 규칙을 CLAUDE.md에 추가
+```markdown
+## 오류 처리 규칙
+- 같은 오류가 2회 반복되면 수정 시도 중단
+- 원인 분석 후 접근법을 바꿔서 재시도
+- 3회 이상이면 나에게 보고 후 대기
+```
+
+**"CLAUDE.md를 무시"** → Hook으로 강제
+```json
+{
+  "hooks": {
+    "PostToolUse": [{
+      "matcher": "Edit|Write",
+      "hooks": [{"type": "command", "command": "npm run lint --silent"}]
+    }]
+  }
+}
+```
+
+### 에스컬레이션 기준
+
+| 위반 횟수 | 대응 |
+|:--------:|------|
+| 1회 | 프롬프트로 재지시 (대화 레이어) |
+| 2회 | CLAUDE.md에 규칙 추가 (확률적 강제) |
+| 3회 이상 | Hook으로 결정론적 차단 |
+
+> 관련: [하네스 엔지니어링 방법론 §5 에스컬레이션 패턴](./claude-code-하네스-엔지니어링-방법론.md) · [하네스 심화: 4가지 실패 패턴](./claude-code-하네스-심화-아키텍처.md)
