@@ -810,6 +810,20 @@ claude -p "이 로그 파일 분석" --output-format stream-json
 claude -p "분석 프롬프트" --output-format json | your_command
 ```
 
+#### `--permission-mode auto` — 분류기 기반 자동 승인
+
+Headless 파이프라인에서 권한 프롬프트 없이 안전하게 실행할 때 사용한다. 분류기 모델이 위험 작업만 차단하고, 일상적인 읽기·검색·편집은 자동 허용한다.
+
+```bash
+# CI 스크립트: 실패한 테스트 자동 수정
+claude --permission-mode auto -p "tests/ 폴더의 실패한 테스트 분석 후 수정"
+
+# 배치 코드 분석 (승인 없이 실행)
+claude --permission-mode auto -p "src/의 사용되지 않는 import 목록 생성" --output-format json
+```
+
+> **주의**: `--permission-mode auto`는 세션 종료 시 리셋된다. CI에서는 매 실행 시 명시적으로 지정한다.
+
 ### Claude Agent SDK
 
 프로그래밍 방식으로 Claude Code를 내부 도구에 통합.
