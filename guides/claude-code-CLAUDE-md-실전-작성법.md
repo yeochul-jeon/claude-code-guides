@@ -3,7 +3,7 @@
 | 항목 | 날짜 |
 |------|------|
 | 생성일 | 2026-03-11 |
-| 변경일 | 2026-06-01 |
+| 변경일 | 2026-06-02 |
 
 > 글로벌(`~/.claude/CLAUDE.md`) 설정 현황, 프로젝트 유형별(백엔드/프론트엔드/인프라) CLAUDE.md 작성 패턴,
 > 그리고 크로스 에이전트 표준인 AGENTS.md까지 정리
@@ -208,6 +208,33 @@ LLM이 반복하는 4가지 실수 패턴에 각각 하나의 원칙으로 대�
 - 상대 경로는 해당 파일 기준으로 resolve
 - 최대 **5 depth** 재귀 import 지원
 - AGENTS.md 호환: `@AGENTS.md`로 import 후 Claude 전용 규칙 추가
+
+**@import 고급 패턴**
+
+| 패턴 | 예시 | 용도 |
+|------|------|------|
+| AGENTS.md 재사용 | `@AGENTS.md` | 빌드/테스트 명령어 중복 제거 |
+| 글로벌 선호도 참조 | `@~/.claude/my-preferences.md` | 개인 설정을 프로젝트 CLAUDE.md에 포함 |
+| 팀 공통 규칙 모듈화 | `@../shared/team-rules.md` | 보안 규칙을 분리 후 여러 프로젝트에 재사용 |
+| 도메인 지식 분리 | `@context/domain-glossary.md` | 비즈니스 용어집을 외부 파일로 관리 |
+
+**모듈화 전략 — 팀 다중 프로젝트 환경:**
+
+```markdown
+# project-a/CLAUDE.md
+@../shared/team-rules.md        # 팀 공통 규칙 (상대 경로)
+@AGENTS.md                      # 빌드/테스트 명령어 재사용
+@~/.claude/my-language.md       # 개인 언어 선호도 (절대 경로)
+
+# 이 프로젝트 전용 규칙만 아래에 작성
+- Spring Boot 3.x 사용
+- JPA: @Data 금지
+```
+
+**@import 주의 사항:**
+- import 대상 파일이 없으면 **무시** (오류 없음) — import 전 파일 존재 확인 권장
+- 세션 시작 시 **한 번만** 로드 — 세션 중 파일 변경은 재시작 필요
+- import 파일에 다시 `@`가 있으면 재귀 로드 (5 depth 상한)
 
 **`.claude/rules/`로 경로별 규칙 분리**
 

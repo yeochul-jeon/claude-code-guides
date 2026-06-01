@@ -3,7 +3,7 @@
 | 항목 | 날짜 |
 |------|------|
 | 생성일 | 2026-04-13 |
-| 변경일 | 2026-04-13 |
+| 변경일 | 2026-06-02 |
 
 > `.claude/` 디렉토리는 Claude Code의 두뇌가 아니라 **신경계**다.
 > 이 가이드는 각 구성요소가 어떻게 연결되어 작동하는지 설명한다.
@@ -175,6 +175,28 @@ graph TB
     ├── Yes → Agents (독립 실행, 결과 요약 반환)
     └── No → 그냥 Claude Code 직접 사용
 ```
+
+### Skill Creator 패턴
+
+새 Skill을 만드는 최소 구조:
+
+```
+~/.claude/skills/<skill-name>/
+└── SKILL.md        # 트리거 조건 + 실행 지침
+```
+
+```markdown
+<!-- ~/.claude/skills/my-skill/SKILL.md -->
+## 트리거
+- 명시적: `/my-skill` 호출 시
+- 자동: "배포해줘" 같은 특정 키워드 포함 시
+
+## 실행 지침
+1. [단계 1]
+2. [단계 2] → 검증: [확인 방법]
+```
+
+Skill의 벤치마킹·deprecation 추적 전략: [Harness 추천 구성 §4.1.1](claude-code-harness-추천구성.md#411-skill-유지보수-벤치마킹--deprecation-추적)
 
 ---
 

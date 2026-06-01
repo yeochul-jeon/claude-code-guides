@@ -3,7 +3,7 @@
 | 항목 | 날짜 |
 |------|------|
 | 생성일 | 2026-03-11 |
-| 변경일 | 2026-04-13 |
+| 변경일 | 2026-06-02 |
 
 > 개인 설정을 넘어, **팀 공유 설정, IDE 통합, CI/CD 파이프라인, Agent Teams, Plugin 생태계, SDK 연동**까지 다루는 확장 가이드
 
@@ -27,6 +27,7 @@
 8. [SDK 및 프로그래밍 방식 연동](#8-sdk-및-프로그래밍-방식-연동)
 9. [팀 마켓플레이스 구축](#9-팀-마켓플레이스-구축)
 10. [보안 및 거버넌스](#10-보안-및-거버넌스)
+11. [팀 온보딩 커맨드](#11-팀-온보딩-커맨드)
 
 ---
 
@@ -1176,6 +1177,61 @@ PR 생성 → Claude 자동 리뷰 → 사람 리뷰 → 병합
 - [Claude Code MCP](https://code.claude.com/docs/en/mcp)
 - [Claude Code Headless Mode](https://code.claude.com/docs/en/headless)
 - [Agent SDK Overview](https://platform.claude.com/docs/en/agent-sdk/overview)
+## 11. 팀 온보딩 커맨드
+
+새 팀원이 Claude Code 환경을 빠르게 구축하도록 `/team-onboarding` 커맨드를 설정한다.
+
+### 커맨드 파일 위치
+
+```
+.claude/commands/team-onboarding.md   # 프로젝트 전용 (git 커밋)
+```
+
+### 커맨드 예시
+
+```markdown
+<!-- .claude/commands/team-onboarding.md -->
+
+## 팀 온보딩 체크리스트
+
+1. **환경 확인**
+   - `claude --version` — Claude Code 버전
+   - `git config --global user.email` — Git 사용자 설정
+
+2. **프로젝트 설정 확인**
+   - `.claude/settings.json` 존재 확인
+   - 이 프로젝트의 CLAUDE.md 규칙 요약 출력
+
+3. **팀 공용 Skills 확인**
+   - `.claude/skills/` 목록 확인
+   - `/commit-helper`가 동작하는지 테스트
+
+4. **첫 빌드 검증**
+   - `[빌드 명령]` 실행 후 성공 확인
+   - `[테스트 명령]` 실행 후 통과 확인
+
+완료 후 `templates/team-onboarding-checklist.md`를 체크하고 팀 리드에게 공유.
+```
+
+### 호출 방법
+
+```bash
+# 세션 내에서
+/project:team-onboarding
+```
+
+### Headless 모드로 자동 검증 (CI 활용)
+
+```bash
+claude -p "팀 온보딩 체크리스트를 실행하고 미완료 항목만 보고하세요." \
+  --allowedTools "Read,Bash(git *),Bash(node --version),Bash(claude --version)"
+```
+
+> 체크리스트 템플릿: [templates/team-onboarding-checklist.md](../templates/team-onboarding-checklist.md)
+> 자동화 레벨 체계: [Harness 추천 구성 §9](claude-code-harness-추천구성.md#9-자동화-레벨-체계-0--7)
+
+---
+
 ## 직접 확인해보기
 
 - [ ] `.claude/settings.json`을 팀 저장소에 커밋하고, 팀원이 동일 설정으로 동작하는지 확인
