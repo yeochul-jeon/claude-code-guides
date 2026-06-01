@@ -3,7 +3,7 @@
 | 항목 | 내용 |
 |------|------|
 | 생성일 | 2026-04-03 |
-| 변경일 | 2026-06-01 |
+| 변경일 | 2026-06-02 |
 | 목적 | Claude Code와 Codex 연계 패턴 — 4가지 통합 방법, 교차 검증 전략, 역할 분담 기준 |
 | 참조 | [Toby님의 AI 개발 루틴](https://www.notion.so/325841d618e181468060c17e7d3a746c) |
 
@@ -22,6 +22,7 @@
 5. [추천 접근 — 단계별 도입](#5-추천-접근--단계별-도입)
 6. [판단 기준 — Codex를 추가할 가치가 있는가?](#6-판단-기준--codex를-추가할-가치가-있는가)
 7. [Claude Code vs Codex 역할 분담](#7-claude-code-vs-codex-역할-분담)
+8. [Claude Code 단독 멀티에이전트 패턴](#8-claude-code-단독-멀티에이전트-패턴)
 
 ---
 
@@ -310,6 +311,67 @@ gh pr create --title "feat: 결제 API 구현" --body "..."
 # 3. Codex로 독립 검토 (Codex 플러그인 활용)
 # .claude/commands/cross-review.md에 등록된 명령
 /codex-review  # Codex가 샌드박스에서 PR 코드를 검증하고 리뷰 코멘트 작성
+```
+
+---
+
+## 8. Claude Code 단독 멀티에이전트 패턴
+
+Codex 없이 Claude Code만으로 다중 관점·병렬 처리를 구현하는 패턴.
+
+### Writer/Reviewer 2-세션 패턴
+
+두 개의 독립 세션이 각각 "작성자"와 "검토자" 역할을 맡아 상호 견제한다.
+같은 모델이 자신의 출력을 검토하면 블라인드 스팟이 생기는 문제를 해소한다.
+
+| 세션 A (Writer) | 세션 B (Reviewer) |
+|-----------------|-------------------|
+| `API rate limiter 구현해줘` | |
+| → 구현 완료, 결과 저장 | |
+| | `src/middleware/rateLimiter.ts 리뷰해줘. 엣지 케이스, 레이스 컨디션 집중 확인` |
+| | → 리뷰 결과 출력 |
+| `리뷰 피드백 반영해줘: [세션 B 결과]` | |
+
+**포인트**: 세션 B는 세션 A의 구현 맥락을 모르므로 **독립적 관점**이 보장된다.
+
+> `/code-review ultra`는 이 패턴을 클라우드 멀티에이전트로 자동화한 버전이다 (Pro/Max 3회 무료 후 usage credits).
+
+### `/batch` — 반복 병렬 실행
+
+동일한 작업을 여러 대상에 병렬로 수행한다.
+
+```
+/batch src/components/*.tsx "각 파일에서 미사용 prop 찾아줘"
+```
+
+| 구분 | `/batch` | `/workflows` |
+|------|----------|--------------|
+| **용도** | 반복 병렬 (같은 작업 × N건) | 복잡 논리 (단계별 분기·의존성) |
+| **워커 수** | 5~30 자동 조정 | 명시적 오케스트레이션 |
+| **적합한 경우** | 파일 N개 변환, 테스트 N개 분석 | 리서치→설계→구현 파이프라인 |
+
+### `claude -p --allowedTools` Fan-out 패턴
+
+non-interactive(`-p`) 모드와 `--allowedTools`로 허용 범위를 제한한 병렬 에이전트를 스크립트로 구동한다.
+
+```bash
+# 파일 목록을 Fan-out으로 병렬 처리
+while IFS= read -r file; do
+  claude -p "$file 파일을 React 18 문법으로 마이그레이션해줘" \
+    --allowedTools "Edit,Bash(git add *),Bash(git commit *)" &
+done < migration-files.txt
+wait  # 전체 완료 대기
+```
+
+**`--allowedTools` 사용 원칙**:
+- 작업에 필요한 도구만 최소한으로 허용
+- `Bash(rm *)` 등 파괴적 명령은 명시적으로 제외
+- 병렬 에이전트일수록 허용 범위를 더 좁게 제한
+
+```bash
+# 읽기 전용 분석 에이전트 (파일 변경 불가)
+claude -p "$(cat file.ts) — 이 코드의 보안 취약점 분석해줘" \
+  --allowedTools "Bash(grep *),Bash(cat *)"
 ```
 
 ---
