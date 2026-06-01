@@ -4,6 +4,8 @@
 <!-- 프로젝트 한 줄 설명으로 교체 -->
 AWS 기반 쿠버네티스 클러스터 자동 프로비저닝. Terraform + Helm + ArgoCD + GitHub Actions.
 
+> 범용 행동지침(Think Before Coding · Simplicity First · Surgical Changes · Goal-Driven)은 글로벌 `~/.claude/CLAUDE.md`에 둔다. 근거: claude-code-guides의 `CLAUDE-md-실전-작성법` 가이드(Karpathy 4원칙). 이 파일은 프로젝트 한정 사실만 담는다.
+
 ## Commands
 - `terraform init` — 초기화
 - `terraform plan -var-file=env/dev.tfvars` — 변경 계획

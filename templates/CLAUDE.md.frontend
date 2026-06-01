@@ -4,6 +4,8 @@
 <!-- 프로젝트 한 줄 설명으로 교체 -->
 Next.js 15 (App Router) + TypeScript + Tailwind CSS + shadcn/ui
 
+> 범용 행동지침(Think Before Coding · Simplicity First · Surgical Changes · Goal-Driven)은 글로벌 `~/.claude/CLAUDE.md`에 둔다. 근거: claude-code-guides의 `CLAUDE-md-실전-작성법` 가이드(Karpathy 4원칙). 이 파일은 프로젝트 한정 사실만 담는다.
+
 ## Build & Test
 - `pnpm dev` — 개발 서버 (Turbopack)
 - `pnpm build` — 프로덕션 빌드

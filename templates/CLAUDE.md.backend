@@ -4,6 +4,8 @@
 <!-- 프로젝트 한 줄 설명으로 교체 -->
 Spring Boot 3.x + Java 21 기반 REST API 서버. QueryDSL + JPA, PostgreSQL.
 
+> 범용 행동지침(Think Before Coding · Simplicity First · Surgical Changes · Goal-Driven)은 글로벌 `~/.claude/CLAUDE.md`에 둔다. 근거: claude-code-guides의 `CLAUDE-md-실전-작성법` 가이드(Karpathy 4원칙). 이 파일은 프로젝트 한정 사실만 담는다.
+
 ## Build & Test
 - Build: `./gradlew build`
 - Test: `./gradlew test`
