@@ -3,7 +3,7 @@
 | 항목 | 날짜 |
 |------|------|
 | 생성일 | 2026-04-13 |
-| 변경일 | 2026-04-13 |
+| 변경일 | 2026-06-01 |
 
 > "순서를 틀리면 90%가 포기한다."
 > 이 가이드는 Claude Code를 처음 접하는 개발자가 하네스 마스터까지 도달하는 학습 여정을 제공한다.
@@ -107,6 +107,7 @@ Claude Code는 새 세션마다 모든 규칙과 컨텍스트를 잊는다. CLAU
 ```
 
 - 상세 구현: [CLAUDE.md 실전 작성법](claude-code-CLAUDE-md-실전-작성법.md)
+- 행동지침 복붙용: [Karpathy 4원칙 — Think Before Coding / Simplicity First / Surgical Changes / Goal-Driven](claude-code-CLAUDE-md-실전-작성법.md#실전-예시-andrej-karpathy-4원칙--행동지침)
 - 이론: [하네스 엔지니어링 방법론 §7](claude-code-하네스-엔지니어링-방법론.md#7-if-then-규칙-엔진-패턴)
 
 ### Step 3: settings.json 보안 설정

@@ -296,6 +296,8 @@ Claude Code를 설치 후 CLAUDE.md/settings.json/Hooks 없이 그대로 쓸 때
 | MCP 서버 5개를 켜니 응답이 느려지고 컨텍스트가 부족하다 | — | 도구 스키마가 컨텍스트 ~41% 선점 | 필요한 MCP만 프로젝트별 활성화, 나머지 비활성화 |
 | CLAUDE.md에 써뒀는데 Claude가 따르지 않는 경우가 있다 | — | CLAUDE.md는 확률적 (~80%) 준수 | 핵심 규칙은 Hook(결정론적, 100%)으로 강제 |
 | 팀원마다 Claude 동작이 달라서 리뷰가 어렵다 | — | 개인 설정만 있고 팀 공유 설정 없음 | `.claude/settings.json`을 git 커밋하여 팀 공유 |
+| 코드가 동작하는데 너무 복잡하다 — 추상화, Factory, 설정파일이 생겼다 | Over-Engineering | Simplicity First 원칙 부재 | CLAUDE.md에 "요청 범위만 구현" 규칙 추가 |
+| 작업 완료 후 실제로 잘 됐는지 확인이 안 된다 / 같은 수정을 반복한다 | — | 검증 가능한 성공 기준 없음 | Goal-Driven 실행: 작업 시작 전 검증 기준 명시 |
 
 ### 증상별 빠른 처방
 
@@ -346,4 +348,4 @@ EOF
 | 2회 | CLAUDE.md에 규칙 추가 (확률적 강제) |
 | 3회 이상 | Hook으로 결정론적 차단 |
 
-> 관련: [하네스 엔지니어링 방법론 §5 에스컬레이션 패턴](./claude-code-하네스-엔지니어링-방법론.md) · [하네스 심화: 4가지 실패 패턴](./claude-code-하네스-심화-아키텍처.md)
+> 관련: [하네스 엔지니어링 방법론 §5 에스컬레이션 패턴](./claude-code-하네스-엔지니어링-방법론.md) · [하네스 심화: 실패 패턴](./claude-code-하네스-심화-아키텍처.md) · [Karpathy 4원칙 — CLAUDE.md 복붙용 블록](./claude-code-CLAUDE-md-실전-작성법.md)

@@ -3,7 +3,7 @@
 | 항목 | 날짜 |
 |------|------|
 | 생성일 | 2026-04-13 |
-| 변경일 | 2026-04-13 |
+| 변경일 | 2026-06-01 |
 
 > "에이전트와 싸우지 마라. 에이전트가 일할 수 있는 환경을 설계하라."
 >
@@ -31,7 +31,8 @@
 
 ## 1. 하네스 없을 때의 4가지 실패 패턴
 
-하네스 없이 AI 에이전트를 쓰면 네 가지 치명적인 실패 패턴이 반복된다.
+하네스 없이 AI 에이전트를 쓰면 다섯 가지 실패 패턴이 반복된다.
+핵심 4가지(AI Slop · Doom Loop · DB Mutation · Shadow Agent) + Over-Engineering(Simplicity First 원칙 위반).
 
 ```mermaid
 graph TD
@@ -39,11 +40,13 @@ graph TD
     A --> C[Doom Loop]
     A --> D[DB Mutation]
     A --> E[Shadow Agent]
+    A --> F[Over-Engineering]
 
     style B fill:#e74c3c,color:#fff
     style C fill:#e67e22,color:#fff
     style D fill:#8e44ad,color:#fff
     style E fill:#2c3e50,color:#fff
+    style F fill:#27ae60,color:#fff
 ```
 
 ### 패턴 1: AI Slop (출력 오염)
@@ -136,6 +139,30 @@ Guardrail(검증 게이트)이 없으면 틀린 코드가 그대로 병합된다
 - 리팩토링은 명시적 요청 없이 수행 금지
 - "연관되어 보이는" 것을 임의로 수정하지 말 것
 ```
+
+### 패턴 5: Over-Engineering (과잉 복잡화)
+
+**증상:** 코드가 동작하긴 하지만 요청보다 훨씬 복잡하다.
+단순한 함수 하나면 되는데 추상화 레이어·설정 파일·Factory 패턴이 생겼다.
+리뷰 시간이 늘고, 다음 수정이 두려워진다.
+
+> **AI Slop과의 차이:** AI Slop은 *틀린* 코드를 생성한다. Over-Engineering은 *동작하지만 불필요하게 복잡한* 코드를 생성한다.
+
+**원인:** CLAUDE.md에 "요청 범위만 구현"이라는 제약이 없으면 에이전트는
+"더 유연하게", "더 재사용 가능하게" 만들려는 경향이 있다.
+Karpathy의 Simplicity First 원칙이 부재한 상태.
+
+**하네스 해결책:**
+```markdown
+## CLAUDE.md — Simplicity First 규칙
+
+- 요청한 것만 구현한다. 요청 범위를 벗어나는 기능은 추가하지 않는다
+- 단일 용도 코드에 추상화 레이어를 만들지 않는다
+- 요청하지 않은 유연성·설정 옵션·플러그인 구조를 넣지 않는다
+- 자문: 시니어 엔지니어가 과도하다고 할까? → 그렇다면 단순화
+```
+
+→ 4원칙 전체 맥락: [CLAUDE.md 실전 작성법 — Karpathy 4원칙 행동지침](./claude-code-CLAUDE-md-실전-작성법.md)
 
 ---
 
@@ -523,7 +550,7 @@ graph LR
 
 | 주제 | 핵심 메시지 |
 |------|------------|
-| 4가지 실패 패턴 | AI Slop, Doom Loop, DB Mutation, Shadow Agent — 모두 하네스로 예방 가능 |
+| 5가지 실패 패턴 | AI Slop, Doom Loop, DB Mutation, Shadow Agent, Over-Engineering — 모두 하네스로 예방 가능 |
 | 5가지 해부 요소 | Guardrails + Specification + Verification Loop + State Management + Observability |
 | 상태 외부화 | 중요한 상태는 파일/Git에 → 세션이 끝나도 사라지지 않는다 |
 | 하이브리드 사이클 | 확률적 생성 → 결정론적 검증 → 확률적 수정 → 결정론적 검증 |
