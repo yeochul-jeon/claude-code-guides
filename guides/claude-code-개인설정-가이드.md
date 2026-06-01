@@ -3,7 +3,7 @@
 | 항목 | 날짜 |
 |------|------|
 | 생성일 | 2026-03-11 |
-| 변경일 | 2026-04-13 |
+| 변경일 | 2026-06-02 |
 
 > AI 분야 저명한 개발자들의 GitHub, 블로그, 공식 문서를 기반으로 정리한 **개인용 Claude Code 최적 구성법**
 
@@ -325,6 +325,50 @@ IT/DevOps가 조직 전체에 강제 적용하는 설정:
 
 > `managed-settings.d/` drop-in 디렉토리로 여러 정책 파일을 알파벳 순 병합할 수 있다.
 
+### 권한 프롬프트 줄이기
+
+허용 목록(allowlist)이 충분히 채워지기 전까지는 매번 권한 프롬프트가 뜬다. 빈도를 줄이는 세 가지 방법:
+
+#### ① Auto Mode — 분류기 기반 자동 승인
+
+분류기 모델이 **위험 작업만 차단**하고 나머지는 자동 허용한다. 일회성 작업이나 신뢰하는 리포에서 유용.
+
+```bash
+# 단일 프롬프트 실행 (non-interactive)
+claude --permission-mode auto -p "tests 폴더의 실패한 테스트 모두 고쳐줘"
+
+# REPL 진입 시 적용
+claude --permission-mode auto
+```
+
+> **주의**: auto mode는 REPL 세션이 끝나면 리셋된다. 영구 허용에는 allowlist를 사용한다.
+
+#### ② `/fewer-permission-prompts` — 트랜스크립트 기반 자동 allowlist
+
+현재 세션 트랜스크립트를 스캔해 반복 승인한 패턴을 분석한 뒤, `settings.json`의 `permissions.allow`에 추가할 규칙을 제안한다.
+
+```
+/fewer-permission-prompts
+```
+
+세션 후반부에 실행하면 실제 사용 패턴을 반영한 최소 허용 목록을 얻을 수 있다.
+
+#### ③ allowlist 수동 추가
+
+자주 사용하는 패턴을 미리 `~/.claude/settings.json`에 추가:
+
+```json
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm test *)",
+      "Bash(npm run lint *)",
+      "Bash(docker compose up *)"
+    ]
+  }
+}
+```
+
 ---
 
 ## 4. Hooks 자동화
@@ -465,6 +509,7 @@ Hooks는 CLAUDE.md 지침과 달리 **100% 결정적으로 실행**된다. 반�
 ```
 
 > Trail of Bits가 공개한 패턴. `prompt` 타입은 Claude가 스스로 판단하여 블로킹 여부를 결정한다.
+> **Stop hook 제한**: 연속 8블록(8 consecutive Stop hook blocks)이 호출되면 Claude Code가 강제로 턴을 종료한다 (Best Practices 공식 수치). 무한 루프 방지용 안전장치이므로 Stop hook 내 작업은 가볍게 유지한다.
 
 #### Bash 명령 감사 로그
 
