@@ -331,7 +331,7 @@ graph LR
 
 ## 8. 참조 구현: claude-harness
 
-이 가이드의 모든 이론을 실전에 적용한 참조 구현이 `/Users/cjenm/poc/claude-harness`에 있다.
+이 가이드의 모든 이론을 실전에 적용한 참조 구현이 별도 내부 저장소 `claude-harness`로 관리된다. 이 가이드 저장소와 형제 디렉토리로 clone해 쓰는 것을 권장한다.
 
 ### 프로젝트 구조
 
@@ -355,7 +355,7 @@ claude-harness/
 ### 설치 방법
 
 ```bash
-git clone <repo-url> claude-harness
+git clone <내부-저장소-URL> claude-harness   # 미게시: 팀 내부 배포 경로로 대체
 cd claude-harness
 
 # 기본 설치 (글로벌 base + skills)

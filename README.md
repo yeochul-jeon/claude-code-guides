@@ -59,7 +59,7 @@ Claude Code(Anthropic CLI) 활용을 위한 한국어 실전 가이드 모음입
 
 | 프로젝트 | 설명 |
 |---------|------|
-| [claude-harness](../claude-harness/) | 이 가이드의 이론을 팀 단위로 구현한 참조 프로젝트. `./install.sh --profile <type>` 원커맨드 설치 (5개 스택 프로필, 7개 Skills, 3개 Agents) |
+| claude-harness *(별도 내부 저장소)* | 이 가이드의 이론을 팀 단위로 구현한 참조 프로젝트. `./install.sh --profile <type>` 원커맨드 설치 (5개 스택 프로필, 7개 Skills, 3개 Agents) → [통제센터 §8](guides/claude-code-통제센터-해부도.md#8-참조-구현-claude-harness) |
 
 ## 기여 방법
 

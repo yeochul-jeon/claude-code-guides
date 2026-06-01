@@ -712,7 +712,7 @@ project/
 
 이 5단계 전략을 팀 단위로 즉시 배포할 수 있는 실전 구현이 있다:
 
-- **claude-harness** (`/Users/cjenm/poc/claude-harness`): base/profiles/skills 구조로 `./install.sh --profile <type>` 원커맨드 설치
+- **claude-harness** *(별도 내부 저장소)*: base/profiles/skills 구조로 `./install.sh --profile <type>` 원커맨드 설치
   - 5개 스택 프로필 (backend-java, backend-kotlin, frontend, infra 등)
   - 7개 Skills (commit-helper, work-log, k8s-validator 등)
   - 3개 서브에이전트 (planner, architect, code-reviewer)
