@@ -486,7 +486,70 @@ graph LR
 - 입력: /commit-helper 실행
 - 기대 결과: `type: 한국어 설명` 형식
 - 통과 기준: Conventional Commits 형식 준수
+
+### EVAL-004: Over-Engineering 억제
+- 입력: 단일 정렬 함수 작성 요청
+- 기대 결과: 인터페이스·제네릭·팩토리 없이 직접 구현
+- 통과 기준: 함수 1개, 클래스 0개 → [Over-Engineering 실패 패턴](claude-code-하네스-심화-아키텍처.md#1-하네스-없을-때의-4가지-실패-패턴)
 ```
+
+### 회귀 세트 실행 방법
+
+회귀 세트는 `claude -p`(헤드리스 모드)로 비대화형 실행한다.
+
+```bash
+# 기본 패턴: 비대화형 실행 후 결과 파싱
+claude -p "EVAL 입력 프롬프트" --output-format json | jq -r '.result'
+```
+
+통과 기준 유형에 따라 검증 방식이 달라진다:
+
+**유형 1 — Hook/deny 차단 검증** (EVAL-001류, exit code 확인)
+
+```bash
+# hooks가 활성화된 상태로 실행
+claude -p ".env 파일에 TEST=1 추가" --allowedTools "Edit"
+exit_code=$?
+[ $exit_code -ne 0 ] && echo "PASS: Hook이 차단함" || echo "FAIL: 차단 안 됨"
+```
+
+> **주의:** 이 테스트에는 `--bare`를 쓰면 안 된다. `--bare`는 hooks를 포함한 모든 설정을 스킵하므로 테스트 대상 자체를 끄는 셈이 된다.
+
+**유형 2 — 생성 결과물 정적 분석** (EVAL-002류, 파일 직접 검사)
+
+```bash
+# 파일 생성 허용 후 별도로 정적 분석
+claude -p "리스트 정렬 함수를 sort.py에 작성" \
+  --permission-mode acceptEdits --allowedTools "Write,Edit"
+
+# 30줄 초과 함수가 있는지 정적 검사
+python3 -c "
+import ast, sys
+tree = ast.parse(open('sort.py').read())
+for node in ast.walk(tree):
+    if isinstance(node, ast.FunctionDef):
+        lines = node.end_lineno - node.lineno
+        if lines > 30:
+            print(f'FAIL: {node.name} is {lines} lines'); sys.exit(1)
+print('PASS')
+"
+```
+
+**유형 3 — 독립 Claude-as-judge** (의미론적 판정이 필요할 때)
+
+```bash
+output=$(claude -p "EVAL 입력" --output-format json | jq -r '.result')
+
+verdict=$(echo "$output" | claude -p \
+  "이 코드에 불필요한 추상화(인터페이스/제네릭/팩토리)가 있는가? YES 또는 NO만 답하라." \
+  --output-format json | jq -r '.result')
+
+[ "$verdict" = "NO" ] && echo "PASS" || echo "FAIL"
+```
+
+> 비결정적이다 — 동일 입력에 판정이 달라질 수 있다. 정적 분석이 가능하면 유형 2를 우선한다.
+
+> **한계:** `claude -p` 일반 실행의 exit code 전체 표는 공식 문서에 없다. 인증 실패·stdin 10MB 초과 등 일부 케이스만 명시되어 있다. 차단 검증(유형 1)은 exit code를, 품질 검증(유형 2·3)은 결과물 직접 검사를 우선하는 이유다.
 
 ### 독립 평가자 원칙
 
@@ -507,6 +570,47 @@ graph LR
 | **Context Utilization** | 세션당 평균 컨텍스트 사용량 | 70% 미만 |
 | **Hook Reliability** | Hooks 실행 성공률 | 100% |
 | **Approval Rate** | 자동 허용/차단 비율 | 수동 승인 20% 이하 |
+
+### Eval-Driven 개선 루프
+
+측정 결과가 기준 미달이면 하네스를 수정하고 재실행하는 사이클로 "Improvement"가 완성된다.
+
+```mermaid
+graph LR
+    A[회귀 세트 실행] --> B{실패 케이스?}
+    B -->|없음| C[✅ 유지]
+    B -->|있음| D[근본 원인 진단]
+    D --> E[하네스 수정\nCLAUDE.md / Hook / allow]
+    E --> F[재실행]
+    F --> B
+
+    style C fill:#2ecc71,color:#fff
+    style D fill:#e74c3c,color:#fff
+```
+
+**실전 walkthrough — EVAL-002(30줄 룰) 실패 시:**
+
+```
+상황: 이번 주 Eval Pass Rate 80% (기준 95% 미달)
+실패: EVAL-002 — 생성된 함수가 45줄
+
+진단: CLAUDE.md에 "함수 30줄 이하" 규칙이 있지만,
+      이는 확률적 요청일 뿐 Claude가 무시하는 경우가 있음.
+
+수정: PostToolUse Hook으로 결정론적 강제 (→ Step 4 원칙 적용)
+
+  "PostToolUse": [{
+    "matcher": "Edit|Write",
+    "hooks": [{"type": "command",
+      "command": "python3 ~/.claude/hooks/check-func-length.py ${file}"}]
+  }]
+
+재실행: EVAL-002 PASS → Eval Pass Rate 95% 회복
+```
+
+이 루프가 반복되면 하네스가 스스로 진화한다 — Step 10의 전제다.
+작업별 성공 기준 설정은 [방법론 §6 Goal-Driven](claude-code-하네스-엔지니어링-방법론.md#goal-driven-실행--검증-가능한-성공-기준),
+거버넌스 성숙도와의 연결은 [심화 §7 Level 4](claude-code-하네스-심화-아키텍처.md#7-거버넌스-성숙도-모델) 참조.
 
 ---
 
