@@ -3,8 +3,8 @@
 | 항목 | 내용 |
 |------|------|
 | 생성일 | 2026-04-03 |
-| 변경일 | 2026-04-13 |
-| 목적 | 워크플로우 설계 고민 — Claude Code와 Codex 간 연계 패턴 정리 |
+| 변경일 | 2026-06-01 |
+| 목적 | Claude Code와 Codex 연계 패턴 — 4가지 통합 방법, 교차 검증 전략, 역할 분담 기준 |
 | 참조 | [Toby님의 AI 개발 루틴](https://www.notion.so/325841d618e181468060c17e7d3a746c) |
 
 ---
@@ -21,6 +21,7 @@
 4. [현실적 제약 사항](#4-현실적-제약-사항)
 5. [추천 접근 — 단계별 도입](#5-추천-접근--단계별-도입)
 6. [판단 기준 — Codex를 추가할 가치가 있는가?](#6-판단-기준--codex를-추가할-가치가-있는가)
+7. [Claude Code vs Codex 역할 분담](#7-claude-code-vs-codex-역할-분담)
 
 ---
 
@@ -267,8 +268,6 @@ claude -p "비평을 반영해서 개선해줘: $(cat critique.md)" > prd-v2.md
 
 ---
 
----
-
 ## 7. Claude Code vs Codex 역할 분담
 
 크로스 에이전트를 설계하기 전에 두 도구의 강점을 이해해야 한다.
@@ -318,7 +317,7 @@ gh pr create --title "feat: 결제 API 구현" --body "..."
 ## 참고 자료
 
 - [Toby님의 AI 개발 루틴 — 초보자 가이드](https://www.notion.so/325841d618e181468060c17e7d3a746c)
-- [하네스 엔지니어링 방법론](../guides/claude-code-하네스-엔지니어링-방법론.md) — 3 성능 축, 독립 평가자 원칙
-- [Claude Code 하네스 추천구성](../guides/claude-code-harness-추천구성.md) — §3.8 멀티 프로젝트 패턴
-- [Claude Code 초보자 튜토리얼](../guides/claude-code-초보자-튜토리얼.md) — Skills, Hooks 기초
-- [Codex 공식 플러그인 완전 가이드](../guides/claude-code-codex-플러그인-완전-가이드.md) — 수동 CLI 대신 4줄 설치로 사용하는 공식 플러그인
+- [하네스 엔지니어링 방법론](./claude-code-하네스-엔지니어링-방법론.md) — 3 성능 축, 독립 평가자 원칙
+- [Claude Code 하네스 추천구성](./claude-code-harness-추천구성.md) — §3.8 멀티 프로젝트 패턴
+- [Claude Code 초보자 튜토리얼](./claude-code-초보자-튜토리얼.md) — Skills, Hooks 기초
+- [Codex 공식 플러그인 완전 가이드](./claude-code-codex-플러그인-완전-가이드.md) — 수동 CLI 대신 4줄 설치로 사용하는 공식 플러그인

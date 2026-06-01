@@ -3,7 +3,7 @@
 | 항목 | 내용 |
 |------|------|
 | 생성일 | 2026-04-08 |
-| 변경일 | 2026-04-08 |
+| 변경일 | 2026-06-01 |
 | 목적 | codex-plugin-cc 공식 플러그인 설치부터 실전 워크플로우까지 초보자 완전 가이드 |
 | 참조 | [GitHub: openai/codex-plugin-cc](https://github.com/openai/codex-plugin-cc) · Apache 2.0 · v1.0.2 |
 
@@ -13,7 +13,7 @@
 ### 관련 문서
 - [초보자 튜토리얼](claude-code-초보자-튜토리얼.md) — Skills, Hooks, 하네스 기초
 - [팀 IDE 통합 가이드](claude-code-팀-IDE-통합-가이드.md) — 플러그인 생태계, CI/CD
-- [크로스 에이전트 워크플로우 (수동 CLI)](../drafts/claude-code-cross-agent-워크플로우.md) — 셸 파이프, MCP 브릿지 심화
+- [크로스 에이전트 워크플로우 (수동 CLI)](./claude-code-cross-agent-워크플로우.md) — 셸 파이프, MCP 브릿지 심화
 
 ---
 
@@ -42,15 +42,15 @@
 `codex-plugin-cc`는 OpenAI가 직접 만들어 배포한 Claude Code 전용 플러그인입니다. Claude Code 세션을 벗어나지 않고 Codex를 **리뷰어** 또는 **보조 에이전트**로 호출할 수 있게 해줍니다.
 
 **이 문서가 다루는 것**: 공식 플러그인의 설치, 명령어, 실전 워크플로우
-**이 문서가 다루지 않는 것**: 셸 파이프 오케스트레이션, 루프 스크립트, MCP 브릿지 → [크로스 에이전트 워크플로우](../drafts/claude-code-cross-agent-워크플로우.md) 참조
+**이 문서가 다루지 않는 것**: 셸 파이프 오케스트레이션, 루프 스크립트, MCP 브릿지 → [크로스 에이전트 워크플로우](./claude-code-cross-agent-워크플로우.md) 참조
 
 ### 접근 방식 비교
 
 | 접근 방식 | 문서 | 특징 | 추천 대상 |
 |-----------|------|------|-----------|
 | **공식 플러그인** (이 문서) | 이 가이드 | 슬래시 명령, 자동 통합, 4줄 설치 | **대부분의 개발자** |
-| 수동 셸 파이프 | [크로스 에이전트 워크플로우](../drafts/claude-code-cross-agent-워크플로우.md) | 커스터마이징 높음, 스크립트 작성 필요 | 파워 유저 |
-| MCP 브릿지 | [크로스 에이전트 워크플로우](../drafts/claude-code-cross-agent-워크플로우.md) | 팀 자동화, 서버 관리 필요 | 팀 인프라 담당자 |
+| 수동 셸 파이프 | [크로스 에이전트 워크플로우](./claude-code-cross-agent-워크플로우.md) | 커스터마이징 높음, 스크립트 작성 필요 | 파워 유저 |
+| MCP 브릿지 | [크로스 에이전트 워크플로우](./claude-code-cross-agent-워크플로우.md) | 팀 자동화, 서버 관리 필요 | 팀 인프라 담당자 |
 
 ---
 
@@ -763,7 +763,7 @@ node -v  # v20.x.x 확인
 - **리뷰 루프를 세밀하게 제어하고 싶다면** → 셸 파이프 또는 Skill
 - **팀 전체에 자동화된 파이프라인으로 배포하려면** → MCP 브릿지
 
-수동 CLI 연계의 상세 패턴은 **[크로스 에이전트 워크플로우](../drafts/claude-code-cross-agent-워크플로우.md)** 를 참조하세요.
+수동 CLI 연계의 상세 패턴은 **[크로스 에이전트 워크플로우](./claude-code-cross-agent-워크플로우.md)** 를 참조하세요.
 
 ---
 
@@ -775,4 +775,4 @@ node -v  # v20.x.x 확인
 - [SmartScope — What codex-plugin-cc Means](https://smartscope.blog/en/blog/codex-plugin-cc-openai-claude-code-2026/) — 시장 분석 및 비용 구조
 - [TILNOTE — Claude Code Codex 플러그인 활용법](https://tilnote.io/en/pages/69cb42b3380f446d3fa9ce51) — 한국어 실전 가이드
 - [hamelsmu/claude-review-loop](https://github.com/hamelsmu/claude-review-loop) — 병렬 리뷰 루프 플러그인
-- [크로스 에이전트 워크플로우 (수동 CLI)](../drafts/claude-code-cross-agent-워크플로우.md) — 셸 파이프, Skill, MCP 브릿지 심화
+- [크로스 에이전트 워크플로우 (수동 CLI)](./claude-code-cross-agent-워크플로우.md) — 셸 파이프, Skill, MCP 브릿지 심화

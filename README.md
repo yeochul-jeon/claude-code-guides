@@ -23,6 +23,7 @@ Claude Code(Anthropic CLI) 활용을 위한 한국어 실전 가이드 모음입
 | 3.5 | [.claude/ 통제센터 해부도](guides/claude-code-통제센터-해부도.md) | 디렉토리 전체 구조, 컨텍스트 깔때기, Commands vs Skills vs Agents 비교 |
 | 4 | [팀 IDE 통합 가이드](guides/claude-code-팀-IDE-통합-가이드.md) | 팀 공유 설정, IDE 통합, CI/CD, Agent Teams, Plugin, SDK, 보안 거버넌스 |
 | 5 | [Codex 공식 플러그인 완전 가이드](guides/claude-code-codex-플러그인-완전-가이드.md) | OpenAI Codex 플러그인 설치, 코드 리뷰, 작업 위임 — 초보자 완전 가이드 |
+| 5.5 | [크로스 에이전트 워크플로우](guides/claude-code-cross-agent-워크플로우.md) | Claude Code × Codex 연계 패턴 4가지, 교차 검증 루프, 역할 분담 기준 |
 | 6 | [10단계 마스터리 로드맵](guides/claude-code-10단계-마스터리-로드맵.md) | 입문부터 숙달까지 학습 여정, 컨텍스트 다이어트, Eval-Driven Improvement |
 | - | [FAQ & 트러블슈팅](guides/claude-code-FAQ.md) | 자주 묻는 질문과 오류 해결 통합 가이드 |
 
