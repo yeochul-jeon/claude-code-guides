@@ -14,6 +14,8 @@
 - [개인 설정 가이드](claude-code-개인설정-가이드.md) — settings.json, Hooks, Skills 상세
 - [10단계 마스터리 로드맵](claude-code-10단계-마스터리-로드맵.md) — 입문부터 숙달까지 학습 여정
 - [.claude/ 통제센터 해부도](claude-code-통제센터-해부도.md) — 디렉토리 구조 실전 설계
+- [시스템 프롬프트 설계원칙](claude-code-시스템프롬프트-설계원칙.md) — If-Then 규칙 엔진으로서의 시스템 프롬프트 설계; Prompt Injection 방어
+- [모델별 프롬프팅 전략](claude-code-모델별-프롬프팅-전략.md) — 하네스 전제: 올바른 모델·effort 선택, Opus 4.8 vs Sonnet 4.6 분기 기준
 
 ---
 

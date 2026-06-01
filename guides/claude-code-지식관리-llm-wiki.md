@@ -9,6 +9,11 @@
 
 > **핵심 메시지**: AI 시대의 지식관리는 "논문 읽기"가 아니라 **"질문 가능한 지식 그래프 운영"**으로 바뀐다.
 
+### 관련 문서
+- [CLAUDE.md 실전 작성법](claude-code-CLAUDE-md-실전-작성법.md) — 위키 거버넌스 CLAUDE.md 작성 패턴 (§5 거버넌스 규칙과 연결)
+- [개인 설정 가이드](claude-code-개인설정-가이드.md) — `.claude/commands/` 커스텀 커맨드, skills 설정 (Paper Monitor 연동)
+- [비용효율 측정 프레임워크](claude-code-비용효율-측정-프레임워크.md) — 지식 생산 비용 최적화 (effort 레벨 조정, 토크나이저 변경 영향)
+
 ---
 
 ## 목차

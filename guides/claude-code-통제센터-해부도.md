@@ -13,6 +13,7 @@
 - [하네스 심화: 실패 패턴·참조 아키텍처·거버넌스](claude-code-하네스-심화-아키텍처.md) — 5가지 해부 요소, 상태 외부화, Stripe 6계층
 - [개인 설정 가이드](claude-code-개인설정-가이드.md) — 각 구성요소 상세 구현
 - [CLAUDE.md 실전 작성법](claude-code-CLAUDE-md-실전-작성법.md) — CLAUDE.md 작성 패턴
+- [시스템 프롬프트 설계원칙](claude-code-시스템프롬프트-설계원칙.md) — .claude/agents/ 하위 에이전트 시스템 프롬프트 설계; 4계층 동심원·5축 분석
 
 ---
 

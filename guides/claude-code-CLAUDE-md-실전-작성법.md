@@ -12,6 +12,7 @@
 - [하네스 엔지니어링 방법론](claude-code-하네스-엔지니어링-방법론.md) — CLAUDE.md/Hooks 설계의 이론적 기반 (If-Then 패턴, 결정론/확률론)
 - [개인 설정 가이드](claude-code-개인설정-가이드.md) — CLAUDE.md 외 전체 설정 항목
 - [Harness 추천 구성](claude-code-harness-추천구성.md) — CLAUDE.md 적용 순서 전략
+- [시스템 프롬프트 설계원칙](claude-code-시스템프롬프트-설계원칙.md) — CLAUDE.md는 시스템 프롬프트의 일종; 4계층 동심원 구조·Prompt Injection 방어 3패턴
 
 ---
 

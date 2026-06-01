@@ -11,6 +11,7 @@
 - [Harness 추천 구성](claude-code-harness-추천구성.md) — 설정 적용 순서 전략
 - [CLAUDE.md 실전 작성법](claude-code-CLAUDE-md-실전-작성법.md) — CLAUDE.md 심화 패턴
 - [팀 IDE 통합 가이드](claude-code-팀-IDE-통합-가이드.md) — 개인 설정을 팀으로 확장
+- [모델별 프롬프팅 전략](claude-code-모델별-프롬프팅-전략.md) — effort 레벨 심화·Adaptive Thinking·모델별 차이 (개인설정 §effort 섹션의 확장)
 
 ---
 
