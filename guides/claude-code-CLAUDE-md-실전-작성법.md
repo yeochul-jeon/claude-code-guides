@@ -132,6 +132,8 @@ Andrej Karpathy의 LLM 코딩 관찰에서 출발해 커뮤니티가 정리한 4
 ([forrestchang/andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills), MIT).
 LLM이 반복하는 4가지 실수 패턴에 각각 하나의 원칙으로 대응한다.
 
+**배치 원칙 (웹서치 검증)**: 4원칙은 **행동지침(behavioral)** 성격이므로 **전역** `~/.claude/CLAUDE.md`에 둔다. 프로젝트 CLAUDE.md는 프로젝트 한정 사실(빌드 명령, 아키텍처, 비즈니스 규칙)만 담는 것이 공식 권장 방식이다. 팀 전체에 강제하려면 프로젝트 CLAUDE.md에 포함하되, 개인 행동지침과 팀 규칙이 섞이는 트레이드오프가 있다.
+
 | 원칙 | 핵심 한 줄 | 대응 실패 패턴 |
 |------|-----------|--------------|
 | **Think Before Coding** | 가정을 명시하고, 모호하면 중단·질문 | 잘못된 가정으로 엉뚱한 구현 |
