@@ -15,17 +15,30 @@ Claude Code(Anthropic CLI) 활용을 위한 한국어 실전 가이드 모음입
 | 순서 | 문서 | 설명 |
 |:---:|------|------|
 | 0 | [Quick Start](guides/claude-code-quick-start.md) | 5분 안에 Claude Code 설치부터 첫 사용까지 |
+| 0.5 | [초보자 튜토리얼](guides/claude-code-초보자-튜토리얼.md) | 설치~팀 공유~CI/CD~보안까지 하네스 구성 전체 흐름 핸즈온 |
 | 1 | [개인 설정 가이드](guides/claude-code-개인설정-가이드.md) | CLAUDE.md, settings.json, Hooks, Skills, MCP 서버 등 개인 워크스페이스 구성 |
 | 2 | [Harness 추천 구성](guides/claude-code-harness-추천구성.md) | 5단계 구성 전략 로드맵 — 어떤 설정을 어떤 순서로, 왜 적용하는지 |
 | 2.5 | [하네스 엔지니어링 방법론](guides/claude-code-하네스-엔지니어링-방법론.md) | 4기둥, 결정론적/확률적 분리, If-Then 패턴 — 모든 설정의 이론적 기반 |
 | 2.7 | [하네스 심화: 실패 패턴 · 참조 아키텍처 · 거버넌스](guides/claude-code-하네스-심화-아키텍처.md) | 4가지 실패 패턴, 5요소 해부, Stripe 6계층, SOLID for AI, 거버넌스 성숙도 |
 | 3 | [CLAUDE.md 실전 작성법](guides/claude-code-CLAUDE-md-실전-작성법.md) | 글로벌/프로젝트별 CLAUDE.md 패턴, AGENTS.md 표준, 백엔드/프론트엔드/인프라 템플릿 |
+| 3.3 | [CLAUDE.md 반복 개선 루프](guides/claude-code-CLAUDE-md-반복개선-루프.md) | 기존 CLAUDE.md를 증거 기반으로 채점·Staleness 감지·개선하는 Observe→Improve→Verify 루프 |
 | 3.5 | [.claude/ 통제센터 해부도](guides/claude-code-통제센터-해부도.md) | 디렉토리 전체 구조, 컨텍스트 깔때기, Commands vs Skills vs Agents 비교 |
 | 4 | [팀 IDE 통합 가이드](guides/claude-code-팀-IDE-통합-가이드.md) | 팀 공유 설정, IDE 통합, CI/CD, Agent Teams, Plugin, SDK, 보안 거버넌스 |
 | 5 | [Codex 공식 플러그인 완전 가이드](guides/claude-code-codex-플러그인-완전-가이드.md) | OpenAI Codex 플러그인 설치, 코드 리뷰, 작업 위임 — 초보자 완전 가이드 |
 | 5.5 | [크로스 에이전트 워크플로우](guides/claude-code-cross-agent-워크플로우.md) | Claude Code × Codex 연계 패턴 4가지, 교차 검증 루프, 역할 분담 기준 |
 | 6 | [10단계 마스터리 로드맵](guides/claude-code-10단계-마스터리-로드맵.md) | 입문부터 숙달까지 학습 여정, 컨텍스트 다이어트, Eval-Driven Improvement |
 | - | [FAQ & 트러블슈팅](guides/claude-code-FAQ.md) | 자주 묻는 질문과 오류 해결 통합 가이드 |
+
+### 심화·확장 가이드
+
+학습 순서와 무관하게 필요할 때 참조하는 주제별 심화 문서입니다.
+
+| 문서 | 설명 |
+|------|------|
+| [시스템 프롬프트 설계 원칙](guides/claude-code-시스템프롬프트-설계원칙.md) | CLAUDE.md → 커스텀 에이전트 System Prompt → SDK 프롬프트 구조화 |
+| [모델별 프롬프팅 전략](guides/claude-code-모델별-프롬프팅-전략.md) | Claude 4 세대 모델 현황·파라미터·모델별 프롬프트 패턴 |
+| [비용효율 측정 프레임워크](guides/claude-code-비용효율-측정-프레임워크.md) | Token이 아닌 Task 기준으로 가치를 측정하는 메트릭 프레임워크 |
+| [LLM-Wiki 지식관리 시스템](guides/claude-code-지식관리-llm-wiki.md) | Claude Code로 구축하는 질문 가능한 지식 그래프 운영 |
 
 ### 팀 공유 템플릿
 
