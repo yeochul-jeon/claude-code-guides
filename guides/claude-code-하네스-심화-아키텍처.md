@@ -3,7 +3,7 @@
 | 항목 | 날짜 |
 |------|------|
 | 생성일 | 2026-04-13 |
-| 변경일 | 2026-06-01 |
+| 변경일 | 2026-06-02 |
 
 > "에이전트와 싸우지 마라. 에이전트가 일할 수 있는 환경을 설계하라."
 >
@@ -163,6 +163,26 @@ Karpathy의 Simplicity First 원칙이 부재한 상태.
 ```
 
 → 4원칙 전체 맥락: [CLAUDE.md 실전 작성법 — Karpathy 4원칙 행동지침](./claude-code-CLAUDE-md-실전-작성법.md)
+
+### 위험 작업: 컨테이너 격리 YOLO Mode
+
+패턴 3(DB Mutation)·패턴 4(Shadow Agent)가 우려되는 **고위험 작업**은 컨테이너 환경에서 YOLO Mode를 사용한다.
+
+```bash
+# Docker 컨테이너 안에서 YOLO Mode 실행
+docker run --rm -it \
+  -v $(pwd):/workspace \
+  -w /workspace \
+  node:20 \
+  bash -c "npm install -g @anthropic-ai/claude-code && claude --dangerously-skip-permissions"
+```
+
+**원칙**:
+- 컨테이너 밖 파일시스템에 쓸 수 없으므로 `rm -rf /` 등 파괴적 명령도 호스트에 영향 없음
+- 실험적 리팩토링, 알 수 없는 코드베이스 탐색, 위험 마이그레이션 사전 검증에 활용
+- 컨테이너 종료 후 결과를 검토하고, 안전하면 호스트에서 재적용
+
+> **주의**: `--dangerously-skip-permissions`는 Claude Code가 모든 권한 프롬프트 없이 실행된다. 반드시 격리된 환경에서만 사용한다.
 
 ---
 

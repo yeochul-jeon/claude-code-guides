@@ -199,6 +199,17 @@ graph TB
 
 Skill의 벤치마킹·deprecation 추적 전략: [Harness 추천 구성 §4.1.1](claude-code-harness-추천구성.md#411-skill-유지보수-벤치마킹--deprecation-추적)
 
+### 내장 특수 명령어
+
+Claude Code에는 설정 없이 사용할 수 있는 내장 명령어가 있다.
+
+| 명령어 | 설명 | 비고 |
+|--------|------|------|
+| `/powerup` | 애니메이션 데모 포함 대화형 기능 튜토리얼 | 온보딩·기능 탐색 용도 |
+| `/radio` | Claude FM lo-fi 라디오를 브라우저로 스트리밍 | API 키·Bedrock·Vertex 환경에서는 불가 |
+
+> `/radio`는 실용적 기능은 아니지만 공식 내장 명령어이며, Bedrock/Vertex/Foundry 환경에서는 표시되지 않는다.
+
 ---
 
 ## 5. rules/ 경로 기반 스코핑
