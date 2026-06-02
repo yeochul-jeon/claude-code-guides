@@ -13,6 +13,7 @@
 - [개인 설정 가이드](claude-code-개인설정-가이드.md) — CLAUDE.md 외 전체 설정 항목
 - [Harness 추천 구성](claude-code-harness-추천구성.md) — CLAUDE.md 적용 순서 전략
 - [시스템 프롬프트 설계원칙](claude-code-시스템프롬프트-설계원칙.md) — CLAUDE.md는 시스템 프롬프트의 일종; 4계층 동심원 구조·Prompt Injection 방어 3패턴
+- [CLAUDE.md 반복 개선 루프](claude-code-CLAUDE-md-반복개선-루프.md) — 기존 CLAUDE.md의 채점·Staleness 감지·증거 기반 개선 루프
 
 ---
 
@@ -807,6 +808,14 @@ Hook     = 반드시 100% 실행해야 하는 자동화 규칙
 > CLAUDE.md는 하네스 5요소 중 **Specification(명세)**에 해당한다.
 > Specification이 부실하면 AI Slop과 Shadow Agent 실패 패턴이 발생한다.
 > → [하네스 5요소 전체](claude-code-하네스-심화-아키텍처.md#2-하네스의-5가지-해부-요소)
+
+### 작성 후 반복 개선
+
+CLAUDE.md는 작성으로 끝나지 않는다. 코드베이스가 변하면 규칙도 낡아진다.
+
+- **세션 중 즉시 반영**: `#` 단축키로 Claude가 세션에서 학습한 내용을 CLAUDE.md에 바로 추가
+- **정기 감사**: `/claude-md-improver` 스킬로 전체 CLAUDE.md를 채점(A~F 등급)하고 개선안을 diff로 제시
+- **반복 개선 루프 전체**: → [CLAUDE.md 반복 개선 루프](claude-code-CLAUDE-md-반복개선-루프.md)
 
 ---
 
